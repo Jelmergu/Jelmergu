@@ -1,9 +1,13 @@
 <?php
 /**
  * @author      Jelmer Wijnja <info@jelmerwijnja.nl>
- * @version     0.1
+ * @version     0.1.
+ * @licence     MIT Licence
  * @package     Jelmergu
  */
+
+var_dump(__FILE__);
+$location = "src/";
 
 spl_autoload_register(
     function ($name) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
- * @version 0.1
+ * @version v1.0
  *
  * @package Jelmergu
  */
@@ -13,7 +13,7 @@ namespace Jelmergu;
  *
  * The class has methods that take multiple arguments to check values according to the input parameters
  *
- * @version 0.1
+ * @version v1.0
  * @package Jelmergu
  */
 class Validator
@@ -36,7 +36,7 @@ class Validator
      * @param array $fields
      * @param array $indices
      *
-     * @version 0.1
+     * @version v1.0
      *
      * @return bool
      */
@@ -61,7 +61,7 @@ class Validator
      * @param array $fields  This is the array that contains key => value pairs that have to be validated
      * @param array $indices This is the array that contains the keys that have to be set
      *
-     * @version 0.1
+     * @version v1.0
      *
      * @return bool Returns true if all indices are set in the fields array
      */
@@ -82,7 +82,7 @@ class Validator
      * @param array $fields
      * @param array $indices
      *
-     * @version 0.1
+     * @version v1.0
      *
      * @return bool
      */
@@ -103,7 +103,7 @@ class Validator
      * @param mixed  $field    The value of the field to check
      * @param string $constant One of the constants of self
      *
-     * @version 0.1
+     * @version v1.0
      *
      * @return bool
      */

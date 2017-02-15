@@ -11,7 +11,7 @@
     ],
     "autoload": {
         "psr-4" : {
-            "Jelmergu\\" : "Jelmergu"
+            "Jelmergu\\" : "src"
         }
     }
 }
