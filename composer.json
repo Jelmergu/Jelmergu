@@ -9,10 +9,9 @@
             "email": "composer@jelmerwijnja.nl"
         }
     ],
-    "require": {},
     "autoload": {
-        "psr-4": {
-            "Jelmergu": "Jelmergu"
+        "psr-4" : {
+            "Jelmergu\\" : "Jelmergu"
         }
     }
 }
