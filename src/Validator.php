@@ -59,14 +59,16 @@ class Validator
         return FALSE;
     }
 
-    public static function either(string $field, array $values) : bool {
+    public static function either(string $field, array $values) : bool
+    {
 
         foreach ($values as $key => $value) {
-            if ($field == $value){
-                return true;
+            if ($field == $value) {
+                return TRUE;
             }
         }
-        return false;
+
+        return FALSE;
     }
 
     /**
@@ -173,4 +175,127 @@ class Validator
 
         return FALSE;
     }
+
+    /**
+     * Validate a email address
+     *
+     * @version 1.0.3
+     *
+     * @param string $mailAddress The email adres to validate
+     *
+     * @return bool
+     */
+    public static function validateMail(string $mailAddress) : bool
+    {
+        if (strlen($mailAddress) > 254) {
+            return FALSE; // Mailadress is not allowed to be longer than 254 characters
+        }
+
+        $split = explode("@", $mailAddress);
+        $domain = array_pop($split); // domain
+        $local = implode("@", $split);
+
+        if (self::validateLocal($local) === TRUE && self::validateDomain($domain) === TRUE) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+
+    /**
+     * Validate the local part of an email address
+     *
+     * @unsupported Comments
+     *
+     * @version     1.0.3
+     *
+     * @param string $local The local part of the email address
+     *
+     * @return bool
+     */
+    private static function validateLocal(string $local) : bool
+    {
+
+        if (strlen($local) >= 64) {
+            return FALSE; // local part is allowed to be up to 64 characters long
+        }
+
+        $quotedStringPart = '`^\"([\\\a-zA-Z0-9\.@\(\)<>\[\]:,;\"!#$\%&\-/=?^_\'\`{}| ~]{1,})\"$`';
+        $unquotedStringPart = '`^([a-zA-Z0-9\`\'\`\-!#$%&*+/=?^_{|}~]{1,}(\.{1}|)){1,}$`';
+
+        if (preg_match($quotedStringPart, $local) > 0) {
+            return TRUE;
+        }
+        elseif (strpos($local, '."') > 0 || strpos($local, '".') > 0) {
+            $localParts = $local;
+            if (strpos($local, '."') > 0) {
+                $localParts = explode('."', $local);
+                $preQuoute = $localParts[0];
+                $localParts = '"' . $localParts[1];
+            }
+            if (strpos($local, '".') > 0) {
+                $localParts = explode('".', $localParts);
+                $postQuote = $localParts[1];
+                $localParts = $localParts[0] . '"';
+            }
+
+            if (preg_match($quotedStringPart, $localParts) > 0) {
+                if (isset($preQuoute) === TRUE && preg_match($unquotedStringPart, $preQuoute) == 0) {
+                    return FALSE;
+                }
+                elseif (isset($postQuoute) === TRUE && preg_match($unquotedStringPart, $postQuote) == 0) {
+                    return FALSE;
+                }
+
+                return TRUE;
+            }
+
+            return FALSE;
+        }
+        elseif (preg_match($unquotedStringPart, $local) > 0) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Validate the domain part of an email address
+     *
+     * @unsupported Comments
+     *
+     * @version     1.0.3
+     *
+     * @param string $domain The domain of an email address
+     *
+     * @return bool
+     */
+    private static function validateDomain(string $domain) : bool
+    {
+
+        $domainParts = explode(".", $domain);
+        foreach ($domainParts as $part) {
+            if (strlen($part) > 64) {
+                // every `subdomain` is allowed to be only 64 characters long
+                return FALSE;
+            }
+        }
+
+        $ipRegex = '`\[([0-9\.]{0,4}){0,4}|(IPv6:([a-fA-F0-9:]{0,5}){1,8})\]$`';
+        $domainRegex = "`^[a-zA-Z0-9\.\-]{1,245}$`";
+
+        if (preg_match($ipRegex, $domain) > 0) {
+            $domain = str_ireplace(["[", "]", "IPv6"], "", $domain);
+            if (filter_var($domain, FILTER_VALIDATE_IP) === FALSE) {
+                return FALSE;
+            }
+        }
+        elseif (preg_match($domainRegex, $domain) == 0) {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
 }
+
