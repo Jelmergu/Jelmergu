@@ -29,6 +29,10 @@ class Validator
     const NOT_BOOL    = "!bool";
     const TRUE        = "true";
     const FALSE       = "false";
+    const ARRAY       = "array";
+    const NOT_ARRAY   = "!array";
+    const EMPTY       = "empty";
+    const NOT_EMPTY   = "!empty";
 
     /**
      * This method check if the specified $indices are set and numeric in the fields array
@@ -40,18 +44,28 @@ class Validator
      *
      * @return bool
      */
-    public static function areNumeric(array $fields, array $indices): bool
+    public static function areNumeric(array $fields, array $indices) : bool
     {
-        if (self::areSet($fields, $indices) === true) {
+        if (self::areSet($fields, $indices) === TRUE) {
             foreach ($indices as $index) {
-                if (is_numeric($fields[$index]) === false) {
-                    return false;
+                if (is_numeric($fields[$index]) === FALSE) {
+                    return FALSE;
                 }
             }
 
-            return true;
+            return TRUE;
         }
 
+        return FALSE;
+    }
+
+    public static function either(string $field, array $values) : bool {
+
+        foreach ($values as $key => $value) {
+            if ($field == $value){
+                return true;
+            }
+        }
         return false;
     }
 
@@ -65,15 +79,15 @@ class Validator
      *
      * @return bool Returns true if all indices are set in the fields array
      */
-    public static function areSet(array $fields, array $indices): bool
+    public static function areSet(array $fields, array $indices) : bool
     {
         foreach ($indices as $index) {
-            if (isset($fields[$index]) === false) {
-                return false;
+            if (isset($fields[$index]) === FALSE) {
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -86,15 +100,18 @@ class Validator
      *
      * @return bool
      */
-    public static function areMixed(array $fields, array $indices): bool
+    public static function areMixed(array $fields, array $indices) : bool
     {
         foreach ($indices as $key => $value) {
-            if (isset($fields[$key]) === true) {
-                if (self::isMixed($fields[$key]) === false) {
-                    return false;
-                }
+            if (isset($fields[$key]) === FALSE) {
+                return FALSE;
+            }
+            elseif (self::is($fields[$key], $value) === FALSE) {
+                return FALSE;
             }
         }
+
+        return TRUE;
     }
 
     /**
@@ -107,59 +124,53 @@ class Validator
      *
      * @return bool
      */
-    private static function isMixed($field, string $constant): bool
+    public static function is($field, string $constant) : bool
     {
         switch ($constant) {
             case self::NUMERIC:
-                if (is_numeric($field) === false) {
-                    return false;
-                }
+                return is_numeric($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_NUMERIC:
-                if (is_numeric($field) === true) {
-                    return false;
-                }
+                return is_numeric($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::STRING:
-                if (is_string($field) === false) {
-                    return false;
-                }
+                return is_string($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_STRING:
-                if (is_string($field) === true) {
-                    return false;
-                }
+                return is_string($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::NULL:
-                if (is_null($field) === false) {
-                    return false;
-                }
+                return is_null($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_NULL:
-                if (is_null($field) === true) {
-                    return false;
-                }
+                return is_null($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::BOOL:
-                if (is_bool($field) === false) {
-                    return false;
-                }
+                return is_bool($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_BOOL:
-                if (is_bool($field) === true) {
-                    return false;
-                }
+                return is_bool($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::TRUE:
-                if ($field === false) {
-                    return false;
-                }
+                return $field === TRUE ? TRUE : FALSE;
                 break;
             case self::FALSE:
-                if ($field === true) {
-                    return false;
-                }
+                return $field === FALSE ? TRUE : FALSE;
+                break;
+            case self::ARRAY:
+                return is_array($field) === TRUE ? TRUE : FALSE;
+                break;
+            case self::NOT_ARRAY:
+                return is_array($field) === FALSE ? TRUE : FALSE;
+                break;
+            case self::EMPTY:
+                return empty($field) === TRUE ? TRUE : FALSE;
+                break;
+            case self::NOT_EMPTY:
+                return empty($field) === FALSE ? TRUE : FALSE;
                 break;
         }
+
+        return FALSE;
     }
 }
