@@ -29,6 +29,10 @@ class Validator
     const NOT_BOOL    = "!bool";
     const TRUE        = "true";
     const FALSE       = "false";
+    const ARRAY       = "array";
+    const NOT_ARRAY   = "!array";
+    const EMPTY       = "empty";
+    const NOT_EMPTY   = "!empty";
 
     /**
      * This method check if the specified $indices are set and numeric in the fields array
@@ -40,19 +44,31 @@ class Validator
      *
      * @return bool
      */
-    public static function areNumeric(array $fields, array $indices): bool
+    public static function areNumeric(array $fields, array $indices) : bool
     {
-        if (self::areSet($fields, $indices) === true) {
+        if (self::areSet($fields, $indices) === TRUE) {
             foreach ($indices as $index) {
-                if (is_numeric($fields[$index]) === false) {
-                    return false;
+                if (is_numeric($fields[$index]) === FALSE) {
+                    return FALSE;
                 }
             }
 
-            return true;
+            return TRUE;
         }
 
-        return false;
+        return FALSE;
+    }
+
+    public static function either(string $field, array $values) : bool
+    {
+
+        foreach ($values as $key => $value) {
+            if ($field == $value) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
     }
 
     /**
@@ -65,15 +81,15 @@ class Validator
      *
      * @return bool Returns true if all indices are set in the fields array
      */
-    public static function areSet(array $fields, array $indices): bool
+    public static function areSet(array $fields, array $indices) : bool
     {
         foreach ($indices as $index) {
-            if (isset($fields[$index]) === false) {
-                return false;
+            if (isset($fields[$index]) === FALSE) {
+                return FALSE;
             }
         }
 
-        return true;
+        return TRUE;
     }
 
     /**
@@ -86,15 +102,18 @@ class Validator
      *
      * @return bool
      */
-    public static function areMixed(array $fields, array $indices): bool
+    public static function areMixed(array $fields, array $indices) : bool
     {
         foreach ($indices as $key => $value) {
-            if (isset($fields[$key]) === true) {
-                if (self::isMixed($fields[$key]) === false) {
-                    return false;
-                }
+            if (isset($fields[$key]) === FALSE) {
+                return FALSE;
+            }
+            elseif (self::is($fields[$key], $value) === FALSE) {
+                return FALSE;
             }
         }
+
+        return TRUE;
     }
 
     /**
@@ -107,59 +126,176 @@ class Validator
      *
      * @return bool
      */
-    private static function isMixed($field, string $constant): bool
+    public static function is($field, string $constant) : bool
     {
         switch ($constant) {
             case self::NUMERIC:
-                if (is_numeric($field) === false) {
-                    return false;
-                }
+                return is_numeric($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_NUMERIC:
-                if (is_numeric($field) === true) {
-                    return false;
-                }
+                return is_numeric($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::STRING:
-                if (is_string($field) === false) {
-                    return false;
-                }
+                return is_string($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_STRING:
-                if (is_string($field) === true) {
-                    return false;
-                }
+                return is_string($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::NULL:
-                if (is_null($field) === false) {
-                    return false;
-                }
+                return is_null($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_NULL:
-                if (is_null($field) === true) {
-                    return false;
-                }
+                return is_null($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::BOOL:
-                if (is_bool($field) === false) {
-                    return false;
-                }
+                return is_bool($field) === TRUE ? TRUE : FALSE;
                 break;
             case self::NOT_BOOL:
-                if (is_bool($field) === true) {
-                    return false;
-                }
+                return is_bool($field) === FALSE ? TRUE : FALSE;
                 break;
             case self::TRUE:
-                if ($field === false) {
-                    return false;
-                }
+                return $field === TRUE ? TRUE : FALSE;
                 break;
             case self::FALSE:
-                if ($field === true) {
-                    return false;
-                }
+                return $field === FALSE ? TRUE : FALSE;
+                break;
+            case self::ARRAY:
+                return is_array($field) === TRUE ? TRUE : FALSE;
+                break;
+            case self::NOT_ARRAY:
+                return is_array($field) === FALSE ? TRUE : FALSE;
+                break;
+            case self::EMPTY:
+                return empty($field) === TRUE ? TRUE : FALSE;
+                break;
+            case self::NOT_EMPTY:
+                return empty($field) === FALSE ? TRUE : FALSE;
                 break;
         }
+
+        return FALSE;
+    }
+
+    /**
+     * Validate a email address
+     *
+     * @version 1.0.3
+     *
+     * @param string $mailAddress The email adres to validate
+     *
+     * @return bool
+     */
+    public static function validateMail(string $mailAddress) : bool
+    {
+        if (strlen($mailAddress) > 254) {
+            return FALSE; // Mailadress is not allowed to be longer than 254 characters
+        }
+
+        $split = explode("@", $mailAddress);
+        $domain = array_pop($split); // domain
+        $local = implode("@", $split);
+
+        if (self::validateLocal($local) === TRUE && self::validateDomain($domain) === TRUE) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+
+    /**
+     * Validate the local part of an email address
+     *
+     * @unsupported Comments
+     *
+     * @version     1.0.3
+     *
+     * @param string $local The local part of the email address
+     *
+     * @return bool
+     */
+    private static function validateLocal(string $local) : bool
+    {
+
+        if (strlen($local) >= 64) {
+            return FALSE; // local part is allowed to be up to 64 characters long
+        }
+
+        $quotedStringPart = '`^\"([\\\a-zA-Z0-9\.@\(\)<>\[\]:,;\"!#$\%&\-/=?^_\'\`{}| ~]{1,})\"$`';
+        $unquotedStringPart = '`^([a-zA-Z0-9\`\'\`\-!#$%&*+/=?^_{|}~]{1,}(\.{1}|)){1,}$`';
+
+        if (preg_match($quotedStringPart, $local) > 0) {
+            return TRUE;
+        }
+        elseif (strpos($local, '."') > 0 || strpos($local, '".') > 0) {
+            $localParts = $local;
+            if (strpos($local, '."') > 0) {
+                $localParts = explode('."', $local);
+                $preQuoute = $localParts[0];
+                $localParts = '"' . $localParts[1];
+            }
+            if (strpos($local, '".') > 0) {
+                $localParts = explode('".', $localParts);
+                $postQuote = $localParts[1];
+                $localParts = $localParts[0] . '"';
+            }
+
+            if (preg_match($quotedStringPart, $localParts) > 0) {
+                if (isset($preQuoute) === TRUE && preg_match($unquotedStringPart, $preQuoute) == 0) {
+                    return FALSE;
+                }
+                elseif (isset($postQuoute) === TRUE && preg_match($unquotedStringPart, $postQuote) == 0) {
+                    return FALSE;
+                }
+
+                return TRUE;
+            }
+
+            return FALSE;
+        }
+        elseif (preg_match($unquotedStringPart, $local) > 0) {
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Validate the domain part of an email address
+     *
+     * @unsupported Comments
+     *
+     * @version     1.0.3
+     *
+     * @param string $domain The domain of an email address
+     *
+     * @return bool
+     */
+    private static function validateDomain(string $domain) : bool
+    {
+
+        $domainParts = explode(".", $domain);
+        foreach ($domainParts as $part) {
+            if (strlen($part) > 64) {
+                // every `subdomain` is allowed to be only 64 characters long
+                return FALSE;
+            }
+        }
+
+        $ipRegex = '`\[([0-9\.]{0,4}){0,4}|(IPv6:([a-fA-F0-9:]{0,5}){1,8})\]$`';
+        $domainRegex = "`^[a-zA-Z0-9\.\-]{1,245}$`";
+
+        if (preg_match($ipRegex, $domain) > 0) {
+            $domain = str_ireplace(["[", "]", "IPv6"], "", $domain);
+            if (filter_var($domain, FILTER_VALIDATE_IP) === FALSE) {
+                return FALSE;
+            }
+        }
+        elseif (preg_match($domainRegex, $domain) == 0) {
+            return FALSE;
+        }
+
+        return TRUE;
     }
 }
+
