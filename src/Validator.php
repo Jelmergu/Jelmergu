@@ -46,7 +46,7 @@ class Validator
      */
     public static function areNumeric(array $fields, array $indices) : bool
     {
-        if (self::areSet($fields, $indices) === TRUE) {
+        if (self::areSet($fields, $indices) === true) {
             foreach ($indices as $index) {
                 if (is_numeric($fields[$index]) === FALSE) {
                     return FALSE;
@@ -130,50 +130,51 @@ class Validator
     {
         switch ($constant) {
             case self::NUMERIC:
-                return is_numeric($field) === TRUE ? TRUE : FALSE;
+                return is_numeric($field) === TRUE;
                 break;
             case self::NOT_NUMERIC:
-                return is_numeric($field) === FALSE ? TRUE : FALSE;
+                return is_numeric($field) === FALSE;
                 break;
             case self::STRING:
-                return is_string($field) === TRUE ? TRUE : FALSE;
+                return is_string($field) === TRUE;
                 break;
             case self::NOT_STRING:
-                return is_string($field) === FALSE ? TRUE : FALSE;
+                return is_string($field) === FALSE;
                 break;
             case self::NULL:
-                return is_null($field) === TRUE ? TRUE : FALSE;
+                return is_null($field) === TRUE;
                 break;
             case self::NOT_NULL:
-                return is_null($field) === FALSE ? TRUE : FALSE;
+                return is_null($field) === FALSE;
                 break;
             case self::BOOL:
-                return is_bool($field) === TRUE ? TRUE : FALSE;
+                return is_bool($field) === TRUE;
                 break;
             case self::NOT_BOOL:
-                return is_bool($field) === FALSE ? TRUE : FALSE;
+                return is_bool($field) === FALSE;
                 break;
             case self::TRUE:
-                return $field === TRUE ? TRUE : FALSE;
+                return $field === TRUE;
                 break;
             case self::FALSE:
-                return $field === FALSE ? TRUE : FALSE;
+                return $field === FALSE;
                 break;
             case self::ARRAY:
-                return is_array($field) === TRUE ? TRUE : FALSE;
+                return is_array($field) === TRUE;
                 break;
             case self::NOT_ARRAY:
-                return is_array($field) === FALSE ? TRUE : FALSE;
+                return is_array($field) === FALSE;
                 break;
             case self::EMPTY:
-                return empty($field) === TRUE ? TRUE : FALSE;
+                return empty($field) === TRUE;
                 break;
             case self::NOT_EMPTY:
-                return empty($field) === FALSE ? TRUE : FALSE;
+                return empty($field) === FALSE;
+                break;
+            default:
+                return false;
                 break;
         }
-
-        return FALSE;
     }
 
     /**

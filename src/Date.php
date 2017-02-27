@@ -23,9 +23,9 @@ class Date extends \DateTime
      *
      * @return string           A full textual representation of a month in the dutch language similar to date(F)
      */
-    public function monthToString(int $maand) : string
+    public function monthToString(int $month) : string
     {
-        $maanden = [
+        $months = [
             '01' => "januari", '02' => "februari",
             '03' => "maart", '04' => "april",
             '06' => "juni", '07' => "juli",
@@ -33,8 +33,7 @@ class Date extends \DateTime
             '10' => "oktober", '11' => "november",
             '12' => "december", '05' => "mei",
         ];
-        $maanden = $maanden[$maand];
 
-        return $maanden;
+        return $months[$month];
     }
 }
