@@ -13,5 +13,8 @@
         "psr-4" : {
             "Jelmergu\\" : "src"
         }
+    },
+    "require": {
+        "phpunit/phpunit": "^6.0"
     }
 }
