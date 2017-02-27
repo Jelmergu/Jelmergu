@@ -48,10 +48,6 @@ class Hashing
      */
     public static function isPasswordHash(string $hash): bool
     {
-        if (preg_match("`\\$2y\\$10\\$`", $hash) > 0) {
-            return true;
-        }
-
-        return false;
+        return preg_match("`\\$2y\\$10\\$`", $hash) > 0;
     }
 }
