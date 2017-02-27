@@ -1,0 +1,36 @@
+<?php
+
+use Jelmergu\Hashing;
+use PHPUnit\Framework\TestCase;
+
+class HashingTest extends TestCase
+{
+    public function test_input_hash_is_created_with_password_hash()
+    {
+        $plainText = 'hello_world';
+
+        $validHash = password_hash($plainText, PASSWORD_DEFAULT);
+        $invalidHash = md5($plainText);
+
+        $this->assertTrue(Hashing::isPasswordHash($validHash));
+
+        $this->assertFalse(Hashing::isPasswordHash($invalidHash));
+    }
+
+
+    public function test_md5_of_hello_returns_bcrypt_of_hello()
+    {
+        $plainText = 'hello';
+
+        $md5HashOfHello = md5($plainText);
+        $referencedMd5HashOfHello = $md5HashOfHello;
+
+        $hashed = Hashing::md5ToPassHash($referencedMd5HashOfHello, $plainText);
+
+        $isValidPassword = password_verify($plainText, $referencedMd5HashOfHello);
+
+        var_dump($md5HashOfHello, $referencedMd5HashOfHello);
+
+        $this->assertTrue($isValidPassword);
+    }
+}
