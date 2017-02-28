@@ -12,7 +12,6 @@ namespace Jelmergu;
 use PDO;
 use PDOStatement;
 
-
 /**
  * A database trait containing shorthands for PDO
  *
@@ -81,7 +80,7 @@ trait Database
             }
         }
 
-        $statement = $this->prepare($query)->execute($parameters);
+        ($statement = $this->prepare($query))->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
         $rows = $statement->rowCount();
 
@@ -108,7 +107,7 @@ trait Database
             }
         }
 
-        $statement = $this->prepare($query)->execute($parameters);
+        ($statement = $this->prepare($query))->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
 
         return $this;
@@ -135,7 +134,7 @@ trait Database
             }
         }
 
-        $statement = $this->prepare($query)->execute($parameters);
+        ($statement = $this->prepare($query))->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetch(PDO::FETCH_ASSOC);
 
         return $this;

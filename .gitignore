@@ -1,6 +1,18 @@
-/*
-!.gitignore
-!index.php
-!composer.json
+# Ignore everything
+*
 
+#
+# Don't ignore some folders
+#
+!Exceptions
+
+#
+# Don't ignore some extentions
+#
 !*.php
+
+#
+# Don't ignore some files
+#
+!composer.json
+!.gitignore
