@@ -9,6 +9,9 @@
 
 namespace Jelmergu;
 
+use PDO;
+use PDOStatement;
+
 
 /**
  * A database trait containing shorthands for PDO
@@ -30,19 +33,31 @@ trait Database
      *
      * @return PDO
      */
-    protected function getPDO() : PDO
+    private function getPDO() : PDO
     {
         if (is_a(self::$db, "PDO") === FALSE) {
             self::$db = new PDO(
                 "mysql:host=" . DB_HOST . ";
                 dbname=" . DB_NAME . ";
-                charset=". DB_CHARSET,
+                charset=" . DB_CHARSET,
                 DB_USERNAME,
                 DB_PASSWORD
             );
         }
 
         return self::$db;
+    }
+
+    /**
+     * Prepare a query
+     *
+     * @param string $query The query to prepare
+     *
+     * @return PDOStatement
+     */
+    protected function prepare(string $query) : PDOStatement
+    {
+        return $this->getPDO()->prepare($query);
     }
 
     /**
@@ -58,7 +73,6 @@ trait Database
      */
     protected function getRows(&$rows = 0, string $query, $parameters = []) : self
     {
-        $statement = $this->getPDO()->prepare($query);
 
         foreach ($parameters as $parameter => $value) {
             if (strpos($parameter, ":") != 0) {
@@ -67,7 +81,7 @@ trait Database
             }
         }
 
-        $statement->execute($parameters);
+        $statement = $this->prepare($query)->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
         $rows = $statement->rowCount();
 
@@ -82,12 +96,10 @@ trait Database
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
      *
-     * @return self
+     * @return Database
      */
     protected function queryData(string $query, $parameters = []) : self
     {
-        $statement = $this->getPDO()->prepare($query);
-
 
         foreach ($parameters as $parameter => $value) {
             if (strpos($parameter, ":") != 0) {
@@ -96,7 +108,7 @@ trait Database
             }
         }
 
-        $statement->execute($parameters);
+        $statement = $this->prepare($query)->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
 
         return $this;
@@ -111,11 +123,10 @@ trait Database
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
      *
-     * @return self
+     * @return Database
      */
     protected function queryRow($query, $parameters = []) : self
     {
-        $statement = $this->getPDO()->prepare($query);
 
         foreach ($parameters as $parameter => $value) {
             if (strpos($parameter, ":") != 0) {
@@ -124,7 +135,7 @@ trait Database
             }
         }
 
-        $statement->execute($parameters);
+        $statement = $this->prepare($query)->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetch(PDO::FETCH_ASSOC);
 
         return $this;
@@ -168,8 +179,8 @@ trait Database
      *
      * @version 1.0.4
      *
-     * @param $query
-     * @param $parameters
+     * @param string $query      The query to fill
+     * @param array  $parameters The parameters of the query
      *
      * @return string
      */
