@@ -3,7 +3,7 @@
 use Jelmergu\Date;
 use PHPUnit\Framework\TestCase;
 
-class StorageTest extends TestCase
+class DateTest extends TestCase
 {
     public function test_second_month_returns_february()
     {

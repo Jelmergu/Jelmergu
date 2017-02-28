@@ -196,7 +196,7 @@ class Validator
         $domain = array_pop($split); // domain
         $local = implode("@", $split);
 
-        if (self::validateLocal($local) === TRUE && self::validateDomain($domain) === TRUE) {
+        if (self::validateLocal($local) && self::validateDomain($domain)) {
             return TRUE;
         }
 

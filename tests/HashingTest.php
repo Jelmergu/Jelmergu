@@ -22,14 +22,11 @@ class HashingTest extends TestCase
     {
         $plainText = 'hello';
 
-        $md5HashOfHello = md5($plainText);
-        $referencedMd5HashOfHello = $md5HashOfHello;
+        $referencedMd5HashOfHello = md5($plainText);
 
-        $hashed = Hashing::md5ToPassHash($referencedMd5HashOfHello, $plainText);
+        Hashing::md5ToPassHash($referencedMd5HashOfHello, $plainText);
 
         $isValidPassword = password_verify($plainText, $referencedMd5HashOfHello);
-
-        var_dump($md5HashOfHello, $referencedMd5HashOfHello);
 
         $this->assertTrue($isValidPassword);
     }
