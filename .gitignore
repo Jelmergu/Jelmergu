@@ -4,6 +4,7 @@
 #
 # Don't ignore some folders
 #
+!src
 !Exceptions
 
 #
@@ -16,3 +17,4 @@
 #
 !composer.json
 !.gitignore
+
