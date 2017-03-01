@@ -19,11 +19,11 @@ class Date extends \DateTime
     /**
      * Changes the date(m) value to the dutch version of date(F)
      *
-     * @param  int $maand Numeric representation of a month, with leading zeros as returned by date(m)
+     * @param  string $maand Numeric representation of a month, with leading zeros as returned by date(m)
      *
      * @return string           A full textual representation of a month in the dutch language similar to date(F)
      */
-    public function monthToString(int $month) : string
+    public function monthToString(string $month) : string
     {
         $months = [
             '01' => "januari", '02' => "februari",
