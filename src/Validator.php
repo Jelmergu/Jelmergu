@@ -46,7 +46,7 @@ class Validator
      */
     public static function areNumeric(array $fields, array $indices) : bool
     {
-        if (self::areSet($fields, $indices) === true) {
+        if (self::areSet($fields, $indices) === TRUE) {
             foreach ($indices as $index) {
                 if (is_numeric($fields[$index]) === FALSE) {
                     return FALSE;
@@ -59,10 +59,39 @@ class Validator
         return FALSE;
     }
 
+    /**
+     * Check if one of the supplied keys exists in the array
+     *
+     * @param array $array The array to find a key in
+     * @param array $keys  The keys which are to be searched for
+     *
+     * @version 1.0.4
+     *
+     * @return bool
+     */
+    public static function eitherKey(array $array, array $keys) : bool
+    {
+        foreach ($keys as $key) {
+            if (isset($array[$key]) === TRUE) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Checks if one of values is equal to the input string
+     *
+     * @param string $field  The string to check
+     * @param array  $values An array of allowed values
+     *
+     * @return bool
+     */
     public static function either(string $field, array $values) : bool
     {
-
         foreach ($values as $key => $value) {
+
             if ($field == $value) {
                 return TRUE;
             }
@@ -122,6 +151,7 @@ class Validator
      * @param mixed  $field    The value of the field to check
      * @param string $constant One of the constants of self
      *
+     * @todo    Change it to be shorter
      * @version v1.0
      *
      * @return bool
@@ -172,7 +202,7 @@ class Validator
                 return empty($field) === FALSE;
                 break;
             default:
-                return false;
+                return FALSE;
                 break;
         }
     }

@@ -4,22 +4,24 @@
  * @copyright jelmerwijnja.nl
  * @version   0.1
  *
- * @package Jelmergu
+ * @package   Jelmergu
  */
 
 namespace Jelmergu;
+
+use \DateTime;
 
 /**
  * The class Date contains additional options for date
  *
  * @package Jelmergu
  */
-class Date extends \DateTime
+class Date extends DateTime
 {
     /**
      * Changes the date(m) value to the dutch version of date(F)
      *
-     * @param  string $maand Numeric representation of a month, with leading zeros as returned by date(m)
+     * @param  string $month Numeric representation of a month, with leading zeros as returned by date(m)
      *
      * @return string           A full textual representation of a month in the dutch language similar to date(F)
      */
