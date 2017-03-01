@@ -28,7 +28,7 @@ class Hashing
 
         if (self::isPasswordHash($hash) === false) {
             if ($hash == md5($input)) {
-                $hash = password_hash($input, PASSWORD_BCRYPT);
+                $hash = password_hash($input, PASSWORD_DEFAULT);
 
                 return true;
             }
