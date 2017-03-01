@@ -4,3 +4,4 @@
 !composer.json
 !tests
 !*.php
+!phpunit.xml.dist  
