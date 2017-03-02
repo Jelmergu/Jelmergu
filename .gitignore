@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Ignore everything
 *
 
@@ -19,4 +18,4 @@
 #
 !composer.json
 !.gitignore
-
+!phpunit.xml.dist
