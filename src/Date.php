@@ -38,4 +38,17 @@ class Date extends DateTime
 
         return $months[$month];
     }
+    
+    /**
+     * Check if the current date is between the input dates
+     *
+     * @param string $lowerDate The beginning of the date range
+     * @param string $upperDate The end of the date range
+     *
+     * @return bool
+     */
+    public function between(string $lowerDate, string $upperDate) : bool
+    {
+        return ($this->getTimestamp() >= strtotime($lowerDate) && $this->getTimestamp() <= strtotime($upperDate));
+    }
 }
