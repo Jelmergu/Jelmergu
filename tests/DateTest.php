@@ -40,6 +40,7 @@ class DateTest extends TestCase
         $beforeRange = (new Date(strtotime("2017-02-09")))->between('2017-02-06', "2017-02-08");
         $afterRange = (new Date(strtotime("2017-02-09")))->between('2017-02-12', "2017-02-10");
 
+
         $this->assertTrue($inRange);
         $this->assertFalse($beforeRange);
         $this->assertFalse($afterRange);
