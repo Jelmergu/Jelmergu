@@ -22,6 +22,8 @@ class Date extends DateTime
      * Changes the date(m) value to the dutch version of date(F)
      * v0.1
      *
+     * @version v1.0
+     *
      * @param  string $month Numeric representation of a month, with leading zeros as returned by date(m)
      *
      * @return string  A full textual representation of a month in the dutch language similar to date(F)
@@ -158,5 +160,20 @@ class Date extends DateTime
         $this->$meth(new \DateInterval("PT" . sqrt(pow($seconds, 2)) . "S"));
 
         return $this;
+    }
+    
+    /**
+     * Check if the current date is between the input dates
+     *
+     * @version v1.0.5
+     *
+     * @param string $lowerDate The beginning of the date range
+     * @param string $upperDate The end of the date range
+     *
+     * @return bool
+     */
+    public function between(string $lowerDate, string $upperDate) : bool
+    {
+        return ($this->getTimestamp() >= strtotime($lowerDate) && $this->getTimestamp() <= strtotime($upperDate));
     }
 }
