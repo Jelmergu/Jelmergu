@@ -11,37 +11,77 @@ namespace Jelmergu;
 
 use PDO;
 use PDOStatement;
+use PDOException;
 
 /**
  * A database trait containing shorthands for PDO
  *
  * This trait combines some methods of PDO that often get executed in sequence
+ * Currently only supports MySQL
  *
  * @package Jelmergu
  */
 trait Database
 {
 
+    /**
+     * @var PDO $db Contains a single instance used by all instances of this class
+     */
     protected static $db;
-    protected        $result;
+    /**
+     * @var mixed $result Contains the results of the last database query
+     */
+    protected $result;
+    /**
+     * @var array $PDOOptions Contains options to be passed to the creation of the PDO instance
+     */
+    public static $PDOOptions = [];
+
 
     /**
      * Return a pdo instance
      *
      * @version 1.0.4
+     * @throws PDOException
      *
      * @return PDO
      */
     private function getPDO() : PDO
     {
         if (is_a(self::$db, "PDO") === FALSE) {
-            self::$db = new PDO(
-                "mysql:host=" . DB_HOST . ";
-                dbname=" . DB_NAME . ";
-                charset=" . DB_CHARSET,
-                DB_USERNAME,
-                DB_PASSWORD
-            );
+            $type = "mysql";
+            if (defined("DB_TYPE") === TRUE) {
+                $type = DB_TYPE;
+            }
+            if (defined("DB_HOST") === TRUE && defined("DB_NAME") === TRUE && defined("DB_USERNAME") === TRUE && defined("DB_PASSWORD") === TRUE) {
+                $extraFields = "";
+                $options = ["charset", "port"];
+
+                foreach ($options as $option) {
+                    if (defined("DB_" . strtoupper($option)) === TRUE) {
+                        $extraFields .= ";" . $option . "=" . constant("DB_" . strtoupper($option));
+                    }
+                }
+
+                self::$db = new PDO(
+                    $type . ":host=" . DB_HOST . ";
+                    dbname=" . DB_NAME
+                    . $extraFields,
+                    DB_USERNAME,
+                    DB_PASSWORD,
+                    self::$options
+                );
+            }
+            else {
+                $missingConstant = "";
+                $requiredConstants = ["DB_HOST", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"];
+                foreach ($requiredConstants as $constant) {
+                    if (defined($constant) === FALSE) {
+                        $missingConstant .= $constant . ", ";
+                    }
+                }
+                throw new PDOException("Missing constants:" . $missingConstant);
+            }
         }
 
         return self::$db;
