@@ -10,8 +10,8 @@
 namespace Jelmergu;
 
 use PDO;
-use PDOStatement;
 use PDOException;
+use PDOStatement;
 
 /**
  * A database trait containing shorthands for PDO
@@ -36,7 +36,22 @@ trait Database
      * @var array $PDOOptions Contains options to be passed to the creation of the PDO instance
      */
     public static $PDOOptions = [];
+    /**
+     * @var array $DatabaseOptions Contains options for the Class
+     *
+     * @option Debug Determines the verbosity of the trait:
+     *         0 = Silent, No errors are given
+     *         1 = Exceptions, Only exceptions are thrown, default
+     *         2 = Var Dumps, var_dumps are printed and exceptions are thrown
+     * @option Log Determines what errors are send to log
+     *         0 = Silent, No errors are logged
+     *         1 = Exceptions, Only exceptions are thrown
+     *         2 = Var Dumps, var_dumps are printed and exceptions are thrown, default
+     *
+     */
+    public static $DatabaseOptions = ["Debug" => 1, "Log" => 2];
 
+    public $fetchMethod = PDO::FETCH_ASSOC;
 
     /**
      * Return a pdo instance
@@ -80,7 +95,17 @@ trait Database
                         $missingConstant .= $constant . ", ";
                     }
                 }
-                throw new PDOException("Missing constants:" . $missingConstant);
+
+                do {
+                    if (self::$DatabaseOptions["Debug"] >= 1) {
+                        throw new PDOException("Missing constants:" . $missingConstant);
+                    }
+                    elseif (self::$DatabaseOptions["Log"] >= 1) {
+                        Log::DatabaseLog("Missing constants:" . $missingConstant);
+                        continue;
+                    }
+                }
+                while (FALSE);
             }
         }
 
@@ -121,7 +146,8 @@ trait Database
         }
 
         ($statement = $this->prepare($query))->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
+        $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
+        $this->fetchMethod = PDO::FETCH_ASSOC;
         $rows = $statement->rowCount();
 
         return $this;
@@ -148,7 +174,8 @@ trait Database
         }
 
         ($statement = $this->prepare($query))->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
+        $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
+        $this->fetchMethod = PDO::FETCH_ASSOC;
 
         return $this;
     }
@@ -175,7 +202,8 @@ trait Database
         }
 
         ($statement = $this->prepare($query))->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetch(PDO::FETCH_ASSOC);
+        $this->result = $this->handleError($statement, $parameters)->fetch($this->fetchMethod);
+        $this->fetchMethod = PDO::FETCH_ASSOC;
 
         return $this;
     }
@@ -194,19 +222,12 @@ trait Database
     {
         $query = $statement->queryString;
         if ($statement->errorCode() != "00000") {
-            if ((bool) DEBUG === TRUE) {
+            if (self::$DatabaseOptions["debug"] >= 2) {
                 var_dump($this->fillQuery($query, $parameters));
                 var_dump($statement->errorInfo());
             }
-            else {
-                if (file_exists(LOG_LOCATION . DIRECTORY_SEPARATOR . "database.log") === FALSE) {
-                    if (is_dir(LOG_LOCATION) === FALSE) {
-                        mkdir(LOG_LOCATION);
-                    }
-                }
-                $file = fopen(LOG_LOCATION . DIRECTORY_SEPARATOR . "database.log", "a");
-                fwrite($file, $statement->errorInfo()[2] . PHP_EOL . $this->fillQuery($query, $parameters));
-                fclose($file);
+            elseif (self::$DatabaseOptions["debug"] >= 2) {
+                Log::DatabaseLog($statement->errorInfo()[2] . PHP_EOL . $this->fillQuery($query, $parameters));
             }
         }
 
