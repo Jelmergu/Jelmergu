@@ -84,7 +84,7 @@ trait Database
                     . $extraFields,
                     DB_USERNAME,
                     DB_PASSWORD,
-                    self::$options
+                    self::$PDOOptions
                 );
             }
             else {
