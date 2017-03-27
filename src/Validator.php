@@ -202,6 +202,9 @@ class Validator
                 return empty($field) === FALSE;
                 break;
             default:
+                if ($field == $constant) {
+                    return true;
+                }
                 return FALSE;
                 break;
         }
