@@ -244,7 +244,7 @@ trait Database
      *
      * @return string
      */
-    function fillQuery(string $query, array $parameters) : string
+    public function fillQuery(string $query, array $parameters) : string
     {
         foreach ($parameters as $key => $value) {
             $query = str_replace($key, '"' . $value . '"', $query);
@@ -253,4 +253,32 @@ trait Database
         return $query;
     }
 
+    /**
+     * This function returns whether or not a transaction is active
+     *
+     * @version 1.0.6
+     *
+     * @return bool
+     */
+    protected function getTransaction() : bool
+    {
+        return $this->getPDO()->inTransaction();
+    }
+
+    /**
+     * This function switches auto commit
+     *
+     * @version 1.0.6
+     *
+     * @return void
+     */
+    protected function transaction()
+    {
+        if ($this->getTransaction() === FALSE) {
+            $this->getPDO()->beginTransaction();
+        }
+        else {
+            $this->getPDO()->commit();
+        }
+    }
 }
