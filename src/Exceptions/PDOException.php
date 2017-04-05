@@ -6,6 +6,7 @@
  *
  * @package   Jelmergu
  */
+
 namespace Jelmergu\Exceptions;
 
 use Throwable;
@@ -27,12 +28,13 @@ class PDOException extends \PDOException
      * @version 1.0.6
      *
      * @param string         $message
-     * @param int            $code
+     * @param string|int     $code
      * @param Throwable|NULL $previous
      */
     public function __construct($message = "", $code = 0, Throwable $previous = NULL)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message);
+        $this->code = $code;
         $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[3];
         $this->file = $caller['file'];
         $this->line = $caller['line'];

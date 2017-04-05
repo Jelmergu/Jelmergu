@@ -135,7 +135,7 @@ trait Database
      *
      * @return Database
      */
-    protected function parameterize(string $query, array &$parameters) : self
+    protected function parametrize(string $query, array &$parameters) : self
     {
         if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== FALSE) {
             foreach ($matches[1] as $key => $parameter) {
@@ -146,7 +146,7 @@ trait Database
                     $outputParameters[':' . $parameter] = $parameters[$parameter];
                 }
                 else {
-                    throw new PDOException("Missing parameter {$parameter}");
+                    throw new PDOException("Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'", "HY093");
                 }
             }
             $parameters = $outputParameters;
@@ -169,13 +169,19 @@ trait Database
      */
     protected function getRows(&$rows = 0, string $query, $parameters = []) : self
     {
-        (
-        $statement = $this->parameterize($query, $parameters)
-            ->prepare($query)
-        )->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
-        $this->fetchMethod = PDO::FETCH_ASSOC;
-        $rows = $statement->rowCount();
+        try {
+            (
+            $statement = $this->parametrize($query, $parameters)
+                ->prepare($query)
+            )->execute($parameters);
+            $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
+            $this->fetchMethod = PDO::FETCH_ASSOC;
+            $rows = $statement->rowCount();
+        }
+            // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
+        catch (\PDOException $e) {
+            throw new PDOException($e->getMessage(), $e->getCode());
+        }
 
         return $this;
     }
@@ -192,13 +198,19 @@ trait Database
      */
     protected function queryData(string $query, $parameters = []) : self
     {
+        try {
+            (
+            $statement = $this->parametrize($query, $parameters)
+                ->prepare($query)
+            )->execute($parameters);
+            $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
+            $this->fetchMethod = PDO::FETCH_ASSOC;
 
-        (
-        $statement = $this->parameterize($query, $parameters)
-            ->prepare($query)
-        )->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
-        $this->fetchMethod = PDO::FETCH_ASSOC;
+        }
+            // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
+        catch (\PDOException $e) {
+            throw new PDOException($e->getMessage(), $e->getCode());
+        }
 
         return $this;
     }
@@ -216,13 +228,19 @@ trait Database
      */
     protected function queryRow($query, $parameters = []) : self
     {
+        try {
+            (
+            $statement = $this->parametrize($query, $parameters)
+                ->prepare($query)
+            )->execute($parameters);
+            $this->result = $this->handleError($statement, $parameters)->fetch($this->fetchMethod);
+            $this->fetchMethod = PDO::FETCH_ASSOC;
 
-        (
-        $statement = $this->parameterize($query, $parameters)
-            ->prepare($query)
-        )->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetch($this->fetchMethod);
-        $this->fetchMethod = PDO::FETCH_ASSOC;
+        }
+            // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
+        catch (\PDOException $e) {
+            throw new PDOException($e->getMessage(), $e->getCode());
+        }
 
         return $this;
     }
