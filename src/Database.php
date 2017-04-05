@@ -9,8 +9,8 @@
 
 namespace Jelmergu;
 
+use Jelmergu\Exceptions\PDOException as PDOException;
 use PDO;
-use PDOException;
 use PDOStatement;
 
 /**
@@ -49,7 +49,7 @@ trait Database
      *         2 = Var Dumps, var_dumps are printed and exceptions are thrown, default
      *
      */
-    public static $DatabaseOptions = ["Debug" => 1, "Log" => 2];
+    public static $DatabaseOptions = ["debug" => 1, "log" => 2];
 
     public $fetchMethod = PDO::FETCH_ASSOC;
 
@@ -97,10 +97,10 @@ trait Database
                 }
 
                 do {
-                    if (self::$DatabaseOptions["Debug"] >= 1) {
-                        throw new PDOException("Missing constants:" . $missingConstant);
+                    if (self::$DatabaseOptions["debug"] >= 1) {
+                        throw new \PDOException("Missing constants:" . $missingConstant);
                     }
-                    elseif (self::$DatabaseOptions["Log"] >= 1) {
+                    elseif (self::$DatabaseOptions["log"] >= 1) {
                         Log::DatabaseLog("Missing constants:" . $missingConstant);
                         continue;
                     }
@@ -125,7 +125,39 @@ trait Database
     }
 
     /**
-     * Execute the query and count the affected rows
+     * Parameterize every input parameter that is used by the query
+     *
+     * @version 1.0.6
+     * @throws \Jelmergu\Exceptions\PDOException
+     *
+     * @param string $query      The query to extract the parameters from
+     * @param array  $parameters A list of parameters that might or might not be needed by the query
+     *
+     * @return Database
+     */
+    protected function parameterize(string $query, array &$parameters) : self
+    {
+        if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== FALSE) {
+            foreach ($matches[1] as $key => $parameter) {
+                if (isset($parameters[$matches[0][$key]]) === TRUE) {
+                    continue;
+                }
+                elseif (isset($parameters[$parameter]) === TRUE) {
+                    $outputParameters[':' . $parameter] = $parameters[$parameter];
+                }
+                else {
+                    throw new PDOException("Missing parameter {$parameter}");
+                }
+            }
+            $parameters = $outputParameters;
+        }
+
+        return $this;
+
+    }
+
+    /**
+     * Prepare, execute and handle errors of the query and count the affected rows
      *
      * @version 1.0.4
      *
@@ -137,15 +169,10 @@ trait Database
      */
     protected function getRows(&$rows = 0, string $query, $parameters = []) : self
     {
-
-        foreach ($parameters as $parameter => $value) {
-            if (strpos($parameter, ":") != 0) {
-                $parameters[':' . $parameter] = $value;
-                unset($parameters[$parameter]);
-            }
-        }
-
-        ($statement = $this->prepare($query))->execute($parameters);
+        (
+        $statement = $this->parameterize($query, $parameters)
+            ->prepare($query)
+        )->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
         $this->fetchMethod = PDO::FETCH_ASSOC;
         $rows = $statement->rowCount();
@@ -166,14 +193,10 @@ trait Database
     protected function queryData(string $query, $parameters = []) : self
     {
 
-        foreach ($parameters as $parameter => $value) {
-            if (strpos($parameter, ":") != 0) {
-                $parameters[':' . $parameter] = $value;
-                unset($parameters[$parameter]);
-            }
-        }
-
-        ($statement = $this->prepare($query))->execute($parameters);
+        (
+        $statement = $this->parameterize($query, $parameters)
+            ->prepare($query)
+        )->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
         $this->fetchMethod = PDO::FETCH_ASSOC;
 
@@ -194,14 +217,10 @@ trait Database
     protected function queryRow($query, $parameters = []) : self
     {
 
-        foreach ($parameters as $parameter => $value) {
-            if (strpos($parameter, ":") != 0) {
-                $parameters[':' . $parameter] = $value;
-                unset($parameters[$parameter]);
-            }
-        }
-
-        ($statement = $this->prepare($query))->execute($parameters);
+        (
+        $statement = $this->parameterize($query, $parameters)
+            ->prepare($query)
+        )->execute($parameters);
         $this->result = $this->handleError($statement, $parameters)->fetch($this->fetchMethod);
         $this->fetchMethod = PDO::FETCH_ASSOC;
 
