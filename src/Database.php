@@ -68,7 +68,10 @@ trait Database
             if (defined("DB_TYPE") === true) {
                 $type = DB_TYPE;
             }
-            if (defined("DB_HOST") === true && defined("DB_NAME") === true && defined("DB_USERNAME") === true && defined("DB_PASSWORD") === true) {
+            if (defined("DB_HOST") === true && defined("DB_NAME") === true && defined(
+                                                                                  "DB_USERNAME") === true && defined(
+                                                                                                                 "DB_PASSWORD") === true
+            ) {
                 $extraFields = "";
                 $options = ["charset", "port"];
 
@@ -129,13 +132,14 @@ trait Database
      *
      * @version 1.0.6
      *
-     * @param PDOStatement $statement  The statement to execute
-     * @param array        $parameters A list of key => value pairs, where some match the name of the parameters in
-     *                                 the prepared statement. The keys don't need to be prefixed with a :
+     * @param PDOStatement $statement       The statement to execute
+     * @param array        $parameters      A list of key => value pairs, where some match the name of the parameters in
+     *                                      the prepared statement. The keys don't need to be prefixed with a :
+     * @param bool         $statementReturn Whether or not the statement should be returned for object chaining
      *
      * @return void|PDOStatement
      */
-    public function execute(PDOStatement &$statement, array $parameters = [], $statementReturn = false)
+    public function execute(PDOStatement &$statement, array $parameters = [], bool $statementReturn = false)
     {
         $this->parametrize($statement->queryString, $parameters);
         $statement->execute($parameters);
@@ -160,13 +164,16 @@ trait Database
     protected function parametrize(string $query, array &$parameters) : self
     {
         if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== false) {
+            $outputParameters = [];
             foreach ($matches[1] as $key => $parameter) {
                 if (isset($parameters[$matches[0][$key]]) === true) {
+                    $outputParameters[":{$parameter}"] = $parameters[":{$parameter}"];
                     continue;
                 } elseif (isset($parameters[$parameter]) === true) {
                     $outputParameters[':' . $parameter] = $parameters[$parameter];
                 } else {
-                    throw new PDOException("Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'",
+                    throw new PDOException(
+                        "Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'",
                         "HY093");
                 }
             }
@@ -301,6 +308,9 @@ trait Database
     public function fillQuery(string $query, array $parameters) : string
     {
         foreach ($parameters as $key => $value) {
+            if ($key[0] != ":") {
+                $key = ":{$key}";
+            }
             $query = str_replace($key, '"' . $value . '"', $query);
         }
 

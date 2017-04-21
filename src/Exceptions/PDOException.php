@@ -35,7 +35,7 @@ class PDOException extends \PDOException
     {
         parent::__construct($message);
         $this->code = $code;
-        $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[3];
+        $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[2];
         $this->file = $caller['file'];
         $this->line = $caller['line'];
     }

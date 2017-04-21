@@ -12,7 +12,7 @@ class Log
     /**
      * @var string Relative or absolute path to the folder where the logs are located
      */
-    public static $logLocation = "/";
+    public static $logLocation = "";
 
     public static function setLogLocation(string $path)
     {
@@ -62,16 +62,15 @@ class Log
         }
     }
 
-    private static function prepareMessage($file, string $message)
+    private static function prepareMessage(string $message)
     {
         if (is_object($message) === TRUE || is_array($message)) {
             $message = json_encode($message);
         }
         $now = new DateTime();
 
-        $message = "[" . $now->format("Y-m-d H:i:s:u") . "] " . $message . PHP_EOL;
+        return "[" . $now->format("Y-m-d H:i:s:u") . "] " . $message . PHP_EOL;
 
-        fwrite($file, $message);
     }
 
 }
