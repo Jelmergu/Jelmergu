@@ -29,7 +29,7 @@ class Log
         self::$logLocation = $newPath;
     }
 
-    protected static function writeLog($logName, $message, $extra)
+    protected static function writeLog($logName, $message, ...$extra)
     {
         $file = fopen(self::$logLocation . $logName.".log", "a");
         fwrite($file, self::prepareMessage($message));

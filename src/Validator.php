@@ -137,7 +137,7 @@ class Validator
             if (isset($fields[$key]) === FALSE) {
                 return FALSE;
             }
-            elseif (self::is($fields[$key], $value) === FALSE) {
+            elseif (self::is($fields[$key], $value) === FALSE || $value == "") {
                 return FALSE;
             }
         }
