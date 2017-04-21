@@ -139,7 +139,7 @@ trait Database
      *
      * @return void|PDOStatement
      */
-    public function execute(PDOStatement &$statement, array $parameters = [], bool $statementReturn = false)
+    public function execute(PDOStatement $statement, array $parameters = [], bool $statementReturn = false)
     {
         $this->parametrize($statement->queryString, $parameters);
         $statement->execute($parameters);
