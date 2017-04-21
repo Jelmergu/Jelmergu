@@ -63,17 +63,17 @@ trait Database
      */
     private function getPDO() : PDO
     {
-        if (is_a(self::$db, "PDO") === FALSE) {
+        if (is_a(self::$db, "PDO") === false) {
             $type = "mysql";
-            if (defined("DB_TYPE") === TRUE) {
+            if (defined("DB_TYPE") === true) {
                 $type = DB_TYPE;
             }
-            if (defined("DB_HOST") === TRUE && defined("DB_NAME") === TRUE && defined("DB_USERNAME") === TRUE && defined("DB_PASSWORD") === TRUE) {
+            if (defined("DB_HOST") === true && defined("DB_NAME") === true && defined("DB_USERNAME") === true && defined("DB_PASSWORD") === true) {
                 $extraFields = "";
                 $options = ["charset", "port"];
 
                 foreach ($options as $option) {
-                    if (defined("DB_" . strtoupper($option)) === TRUE) {
+                    if (defined("DB_" . strtoupper($option)) === true) {
                         $extraFields .= ";" . $option . "=" . constant("DB_" . strtoupper($option));
                     }
                 }
@@ -86,12 +86,11 @@ trait Database
                     DB_PASSWORD,
                     self::$PDOOptions
                 );
-            }
-            else {
+            } else {
                 $missingConstant = "";
                 $requiredConstants = ["DB_HOST", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"];
                 foreach ($requiredConstants as $constant) {
-                    if (defined($constant) === FALSE) {
+                    if (defined($constant) === false) {
                         $missingConstant .= $constant . ", ";
                     }
                 }
@@ -99,13 +98,11 @@ trait Database
                 do {
                     if (self::$DatabaseOptions["debug"] >= 1) {
                         throw new \PDOException("Missing constants:" . $missingConstant);
-                    }
-                    elseif (self::$DatabaseOptions["log"] >= 1) {
+                    } elseif (self::$DatabaseOptions["log"] >= 1) {
                         Log::DatabaseLog("Missing constants:" . $missingConstant);
                         continue;
                     }
-                }
-                while (FALSE);
+                } while (false);
             }
         }
 
@@ -115,6 +112,8 @@ trait Database
     /**
      * Prepare a query
      *
+     * @version 1.0.4
+     *
      * @param string $query The query to prepare
      *
      * @return PDOStatement
@@ -122,6 +121,29 @@ trait Database
     protected function prepare(string $query) : PDOStatement
     {
         return $this->getPDO()->prepare($query);
+    }
+
+
+    /**
+     * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
+     *
+     * @version 1.0.6
+     *
+     * @param PDOStatement $statement  The statement to execute
+     * @param array        $parameters A list of key => value pairs, where some match the name of the parameters in
+     *                                 the prepared statement. The keys don't need to be prefixed with a :
+     *
+     * @return void|PDOStatement
+     */
+    public function execute(PDOStatement &$statement, array $parameters = [], $statementReturn = false)
+    {
+        $this->parametrize($statement->queryString, $parameters);
+        $statement->execute($parameters);
+        $this->handleError($statement, $parameters);
+
+        if ($statementReturn === true) {
+            return $statement;
+        }
     }
 
     /**
@@ -137,16 +159,15 @@ trait Database
      */
     protected function parametrize(string $query, array &$parameters) : self
     {
-        if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== FALSE) {
+        if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== false) {
             foreach ($matches[1] as $key => $parameter) {
-                if (isset($parameters[$matches[0][$key]]) === TRUE) {
+                if (isset($parameters[$matches[0][$key]]) === true) {
                     continue;
-                }
-                elseif (isset($parameters[$parameter]) === TRUE) {
+                } elseif (isset($parameters[$parameter]) === true) {
                     $outputParameters[':' . $parameter] = $parameters[$parameter];
-                }
-                else {
-                    throw new PDOException("Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'", "HY093");
+                } else {
+                    throw new PDOException("Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'",
+                        "HY093");
                 }
             }
             $parameters = $outputParameters;
@@ -170,15 +191,14 @@ trait Database
     protected function getRows(&$rows = 0, string $query, $parameters = []) : self
     {
         try {
-            (
-            $statement = $this->parametrize($query, $parameters)
-                ->prepare($query)
-            )->execute($parameters);
-            $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
+            $this->result = $this->execute(
+                $statement = $this->prepare($query),
+                $parameters,
+                true
+            )->fetchAll($this->fetchMethod);
             $this->fetchMethod = PDO::FETCH_ASSOC;
             $rows = $statement->rowCount();
-        }
-            // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
+        } // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
         catch (\PDOException $e) {
             throw new PDOException($e->getMessage(), $e->getCode());
         }
@@ -199,15 +219,14 @@ trait Database
     protected function queryData(string $query, $parameters = []) : self
     {
         try {
-            (
-            $statement = $this->parametrize($query, $parameters)
-                ->prepare($query)
-            )->execute($parameters);
-            $this->result = $this->handleError($statement, $parameters)->fetchAll($this->fetchMethod);
+            $this->result = $this->execute(
+                $statement = $this->prepare($query),
+                $parameters,
+                true
+            )->fetchAll($this->fetchMethod);
             $this->fetchMethod = PDO::FETCH_ASSOC;
 
-        }
-            // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
+        } // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
         catch (\PDOException $e) {
             throw new PDOException($e->getMessage(), $e->getCode());
         }
@@ -217,7 +236,7 @@ trait Database
 
 
     /**
-     * Execute a query and fetch a single
+     * Execute a query and fetch a single row
      *
      * @version 1.0.4
      *
@@ -229,15 +248,14 @@ trait Database
     protected function queryRow($query, $parameters = []) : self
     {
         try {
-            (
-            $statement = $this->parametrize($query, $parameters)
-                ->prepare($query)
-            )->execute($parameters);
-            $this->result = $this->handleError($statement, $parameters)->fetch($this->fetchMethod);
+            $this->result = $this->execute(
+                $statement = $this->prepare($query),
+                $parameters,
+                true
+            )->fetch($this->fetchMethod);
             $this->fetchMethod = PDO::FETCH_ASSOC;
 
-        }
-            // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
+        } // Convert PHP's PDOException to the more accurate Jelmergu\PDOException
         catch (\PDOException $e) {
             throw new PDOException($e->getMessage(), $e->getCode());
         }
@@ -262,8 +280,7 @@ trait Database
             if (self::$DatabaseOptions["debug"] >= 2) {
                 var_dump($this->fillQuery($query, $parameters));
                 var_dump($statement->errorInfo());
-            }
-            elseif (self::$DatabaseOptions["debug"] >= 2) {
+            } elseif (self::$DatabaseOptions["debug"] >= 2) {
                 Log::DatabaseLog($statement->errorInfo()[2] . PHP_EOL . $this->fillQuery($query, $parameters));
             }
         }
@@ -311,10 +328,9 @@ trait Database
      */
     protected function transaction()
     {
-        if ($this->getTransaction() === FALSE) {
+        if ($this->getTransaction() === false) {
             $this->getPDO()->beginTransaction();
-        }
-        else {
+        } else {
             $this->getPDO()->commit();
         }
     }
