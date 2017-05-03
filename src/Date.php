@@ -2,9 +2,10 @@
 /**
  * @author    Jelmer Wijnja <info@jelmerwijnja.nl>
  * @copyright jelmerwijnja.nl
- * @version   0.1
+ * @since     0.1
+ * @version   1.0.1
  *
- * @package   Jelmergu
+ * @package   Jelmergu/Jelmergu
  */
 
 namespace Jelmergu;
@@ -31,12 +32,18 @@ class Date extends DateTime
     public function monthToString(string $month) : string
     {
         $months = [
-            '01' => "januari", '02' => "februari",
-            '03' => "maart", '04' => "april",
-            '06' => "juni", '07' => "juli",
-            '08' => "augustus", '09' => "september",
-            '10' => "oktober", '11' => "november",
-            '12' => "december", '05' => "mei",
+            '01' => "januari",
+            '02' => "februari",
+            '03' => "maart",
+            '04' => "april",
+            '06' => "juni",
+            '07' => "juli",
+            '08' => "augustus",
+            '09' => "september",
+            '10' => "oktober",
+            '11' => "november",
+            '12' => "december",
+            '05' => "mei",
         ];
 
         return $months[$month];
@@ -161,7 +168,7 @@ class Date extends DateTime
 
         return $this;
     }
-    
+
     /**
      * Check if the current date is between the input dates
      *

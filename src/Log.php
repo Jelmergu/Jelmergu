@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
+ * @version 1.0
+ * @since   1.0.6
+ *
+ * @package Jelmergu/Jelmergu
+ */
 
 namespace Jelmergu;
 

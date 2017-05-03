@@ -2,22 +2,20 @@
 /**
  * @author    Jelmer Wijnja <info@jelmerwijnja.nl>
  * @copyright jelmerwijnja.nl
- * @version   1.0.6
+ * @since     1.0.6
+ * @version   1.0.1
  *
- * @package   Jelmergu
+ * @package   Jelmergu/Jelmergu
  */
 
 namespace Jelmergu\Exceptions;
-
-use Throwable;
 
 /**
  * This is a override for PDOException
  *
  * This exception can be thrown by the database trait
- * and will point to the correct file and line number that the trait's method was called on
+ * and should point to the correct file and line number that the trait's method was called on
  *
- * @package Jelmergu
  */
 class PDOException extends \PDOException
 {
@@ -31,12 +29,21 @@ class PDOException extends \PDOException
      * @param string|int     $code
      * @param Throwable|NULL $previous
      */
-    public function __construct($message = "", $code = 0, Throwable $previous = NULL)
+    public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
         parent::__construct($message);
+        echo "called with: {$message}";
         $this->code = $code;
-        $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[2];
-        $this->file = $caller['file'];
-        $this->line = $caller['line'];
+        $DatabaseReflection = new \ReflectionClass("Jelmergu\Database");
+        $backtrace = $this->getTrace();
+
+        // Go through the backtrace until a function is found that is not a method of Jelmergu\Database
+        foreach ($backtrace as $key => $caller) {
+            if ($DatabaseReflection->hasMethod($caller['function']) === false) {
+                $this->file = $backtrace[$key - 1]['file'];
+                $this->line = $backtrace[$key - 1]['line'];
+                break;
+            }
+        }
     }
 }

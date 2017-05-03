@@ -1,9 +1,10 @@
 <?php
 /**
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
- * @version
+ * @version 1.0
+ * @since   1.0
  *
- * @package Jelmergu
+ * @package Jelmergu/Jelmergu
  */
 
 namespace Jelmergu\Exceptions;

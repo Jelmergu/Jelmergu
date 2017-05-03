@@ -1,9 +1,10 @@
 <?php
 /**
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
- * @version v1.0
+ * @since   1.0
+ * @version 1.0.3
  *
- * @package Jelmergu
+ * @package Jelmergu/Jelmergu
  */
 
 namespace Jelmergu;
@@ -46,17 +47,17 @@ class Validator
      */
     public static function areNumeric(array $fields, array $indices) : bool
     {
-        if (self::areSet($fields, $indices) === TRUE) {
+        if (self::areSet($fields, $indices) === true) {
             foreach ($indices as $index) {
-                if (is_numeric($fields[$index]) === FALSE) {
-                    return FALSE;
+                if (is_numeric($fields[$index]) === false) {
+                    return false;
                 }
             }
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -72,12 +73,12 @@ class Validator
     public static function eitherKey(array $array, array $keys) : bool
     {
         foreach ($keys as $key) {
-            if (isset($array[$key]) === TRUE) {
-                return TRUE;
+            if (isset($array[$key]) === true) {
+                return true;
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -93,11 +94,11 @@ class Validator
         foreach ($values as $key => $value) {
 
             if ($field == $value) {
-                return TRUE;
+                return true;
             }
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -113,12 +114,12 @@ class Validator
     public static function areSet(array $fields, array $indices) : bool
     {
         foreach ($indices as $index) {
-            if (isset($fields[$index]) === FALSE) {
-                return FALSE;
+            if (isset($fields[$index]) === false) {
+                return false;
             }
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -134,15 +135,14 @@ class Validator
     public static function areMixed(array $fields, array $indices) : bool
     {
         foreach ($indices as $key => $value) {
-            if (isset($fields[$key]) === FALSE) {
-                return FALSE;
-            }
-            elseif (self::is($fields[$key], $value) === FALSE || $value == "") {
-                return FALSE;
+            if (isset($fields[$key]) === false) {
+                return false;
+            } elseif (self::is($fields[$key], $value) === false || $value == "") {
+                return false;
             }
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -160,53 +160,54 @@ class Validator
     {
         switch ($constant) {
             case self::NUMERIC:
-                return is_numeric($field) === TRUE;
-                break;
+                return is_numeric($field) === true;
+            break;
             case self::NOT_NUMERIC:
-                return is_numeric($field) === FALSE;
-                break;
+                return is_numeric($field) === false;
+            break;
             case self::STRING:
-                return is_string($field) === TRUE;
-                break;
+                return is_string($field) === true;
+            break;
             case self::NOT_STRING:
-                return is_string($field) === FALSE;
-                break;
+                return is_string($field) === false;
+            break;
             case self::NULL:
-                return is_null($field) === TRUE;
-                break;
+                return is_null($field) === true;
+            break;
             case self::NOT_NULL:
-                return is_null($field) === FALSE;
-                break;
+                return is_null($field) === false;
+            break;
             case self::BOOL:
-                return is_bool($field) === TRUE;
-                break;
+                return is_bool($field) === true;
+            break;
             case self::NOT_BOOL:
-                return is_bool($field) === FALSE;
-                break;
+                return is_bool($field) === false;
+            break;
             case self::TRUE:
-                return $field === TRUE;
-                break;
+                return $field === true;
+            break;
             case self::FALSE:
-                return $field === FALSE;
-                break;
+                return $field === false;
+            break;
             case self::ARRAY:
-                return is_array($field) === TRUE;
-                break;
+                return is_array($field) === true;
+            break;
             case self::NOT_ARRAY:
-                return is_array($field) === FALSE;
-                break;
+                return is_array($field) === false;
+            break;
             case self::EMPTY:
-                return empty($field) === TRUE;
-                break;
+                return empty($field) === true;
+            break;
             case self::NOT_EMPTY:
-                return empty($field) === FALSE;
-                break;
+                return empty($field) === false;
+            break;
             default:
                 if ($field == $constant) {
                     return true;
                 }
-                return FALSE;
-                break;
+
+                return false;
+            break;
         }
     }
 
@@ -222,7 +223,7 @@ class Validator
     public static function validateMail(string $mailAddress) : bool
     {
         if (strlen($mailAddress) > 254) {
-            return FALSE; // Mailadress is not allowed to be longer than 254 characters
+            return false; // Mailadress is not allowed to be longer than 254 characters
         }
 
         $split = explode("@", $mailAddress);
@@ -230,10 +231,10 @@ class Validator
         $local = implode("@", $split);
 
         if (self::validateLocal($local) && self::validateDomain($domain)) {
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
 
@@ -252,16 +253,15 @@ class Validator
     {
 
         if (strlen($local) >= 64) {
-            return FALSE; // local part is allowed to be up to 64 characters long
+            return false; // local part is allowed to be up to 64 characters long
         }
 
         $quotedStringPart = '`^\"([\\\a-zA-Z0-9\.@\(\)<>\[\]:,;\"!#$\%&\-/=?^_\'\`{}| ~]{1,})\"$`';
         $unquotedStringPart = '`^([a-zA-Z0-9\`\'\`\-!#$%&*+/=?^_{|}~]{1,}(\.{1}|)){1,}$`';
 
         if (preg_match($quotedStringPart, $local) > 0) {
-            return TRUE;
-        }
-        elseif (strpos($local, '."') > 0 || strpos($local, '".') > 0) {
+            return true;
+        } elseif (strpos($local, '."') > 0 || strpos($local, '".') > 0) {
             $localParts = $local;
             if (strpos($local, '."') > 0) {
                 $localParts = explode('."', $local);
@@ -275,23 +275,21 @@ class Validator
             }
 
             if (preg_match($quotedStringPart, $localParts) > 0) {
-                if (isset($preQuoute) === TRUE && preg_match($unquotedStringPart, $preQuoute) == 0) {
-                    return FALSE;
-                }
-                elseif (isset($postQuoute) === TRUE && preg_match($unquotedStringPart, $postQuote) == 0) {
-                    return FALSE;
+                if (isset($preQuoute) === true && preg_match($unquotedStringPart, $preQuoute) == 0) {
+                    return false;
+                } elseif (isset($postQuoute) === true && preg_match($unquotedStringPart, $postQuote) == 0) {
+                    return false;
                 }
 
-                return TRUE;
+                return true;
             }
 
-            return FALSE;
-        }
-        elseif (preg_match($unquotedStringPart, $local) > 0) {
-            return TRUE;
+            return false;
+        } elseif (preg_match($unquotedStringPart, $local) > 0) {
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -312,7 +310,7 @@ class Validator
         foreach ($domainParts as $part) {
             if (strlen($part) > 64) {
                 // every `subdomain` is allowed to be only 64 characters long
-                return FALSE;
+                return false;
             }
         }
 
@@ -321,15 +319,14 @@ class Validator
 
         if (preg_match($ipRegex, $domain) > 0) {
             $domain = str_ireplace(["[", "]", "IPv6"], "", $domain);
-            if (filter_var($domain, FILTER_VALIDATE_IP) === FALSE) {
-                return FALSE;
+            if (filter_var($domain, FILTER_VALIDATE_IP) === false) {
+                return false;
             }
-        }
-        elseif (preg_match($domainRegex, $domain) == 0) {
-            return FALSE;
+        } elseif (preg_match($domainRegex, $domain) == 0) {
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 }
 

@@ -1,4 +1,13 @@
 <?php
+/**
+ * @author    Jelmer Wijnja <info@jelmerwijnja.nl>
+ * @copyright jelmerwijnja.nl
+ * @since     1.0.6
+ * @version   1.0
+ *
+ * @package   Jelmergu/Jelmergu
+ */
+
 
 namespace Jelmergu\Exceptions;
 use Jelmergu\Date;

@@ -1,9 +1,10 @@
 <?php
 /**
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
- * @version v1.0.1
+ * @since   1.0.4
+ * @version 1.0
  *
- * @package Jelmergu
+ * @package Jelmergu/Jelmergu
  */
 
 namespace Jelmergu;
@@ -28,10 +29,10 @@ class Hashing
         if ($hash == md5($password)) {
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -50,10 +51,10 @@ class Hashing
         if (crypt($password, $salt) == $hash) {
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
