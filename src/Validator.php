@@ -212,6 +212,20 @@ class Validator
     }
 
     /**
+     * Check whether or not the input variable is either an object or an array
+     *
+     * @param $var The variable to check
+     *
+     * @since   1.0.6
+     * @version 1.0
+     * @return bool
+     */
+    public static function objectOrArray($var)
+    {
+        return (is_array($var) === true || is_object($var) === true);
+    }
+
+    /**
      * Validate a email address
      *
      * @version 1.0.3
