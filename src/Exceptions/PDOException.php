@@ -23,7 +23,8 @@ class PDOException extends \PDOException
      * PDOException constructor.
      * Override to skip the trait methods and go to the calling line
      *
-     * @version 1.0.6
+     * @since 1.0.6
+     * @version 1.0
      *
      * @param string         $message
      * @param string|int     $code
@@ -32,7 +33,6 @@ class PDOException extends \PDOException
     public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
         parent::__construct($message);
-        echo "called with: {$message}";
         $this->code = $code;
         $DatabaseReflection = new \ReflectionClass("Jelmergu\Database");
         $backtrace = $this->getTrace();

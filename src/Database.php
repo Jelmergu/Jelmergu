@@ -2,9 +2,10 @@
 /**
  * @author    Jelmer Wijnja <info@jelmerwijnja.nl>
  * @copyright jelmerwijnja.nl
- * @version   1.0.4
+ * @since     1.0.4
+ * @version   1.0.2
  *
- * @package   Jelmergu
+ * @package   Jelmergu/Jelmergu
  */
 
 namespace Jelmergu;
@@ -20,7 +21,7 @@ use PDOStatement;
  * This trait combines some methods of PDO that often get executed in sequence
  * Currently only supports MySQL
  *
- * @package Jelmergu
+ * @package Jelmergu/Jelmergu
  */
 trait Database
 {
@@ -58,7 +59,8 @@ trait Database
     /**
      * Return a pdo instance
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
      * @throws  Exceptions\PDOException
      *
      * @return PDO
@@ -130,7 +132,9 @@ trait Database
     /**
      * Prepare a query
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param string $query The query to prepare
      *
@@ -145,7 +149,9 @@ trait Database
     /**
      * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
      *
-     * @version 1.0.6
+     * @since   1.0.6
+     * @version 1.0
+     *
      *
      * @param PDOStatement $statement       The statement to execute
      * @param array        $parameters      A list of key => value pairs, where some match the name of the parameters in
@@ -168,7 +174,8 @@ trait Database
     /**
      * Parameterize every input parameter that is used by the query
      *
-     * @version 1.0.6
+     * @since   1.0.6
+     * @version 1.0
      * @throws Exceptions\PDOException
      *
      * @param string $query      The query to extract the parameters from
@@ -203,7 +210,9 @@ trait Database
     /**
      * Prepare, execute and handle errors of the query and count the affected rows
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param int    $rows       The reference to the variable that will contain the amount of rows
      * @param string $query      The query to execute
@@ -231,7 +240,9 @@ trait Database
     /**
      * Execute a query and return all rows
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
@@ -259,7 +270,9 @@ trait Database
     /**
      * Execute a query and fetch a single row
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
@@ -287,7 +300,9 @@ trait Database
     /**
      * Handle for a sql error
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param PDOStatement $statement  The statement with a possible error
      * @param array        $parameters The parameters used in the query
@@ -297,13 +312,22 @@ trait Database
     private function handleError(PDOStatement $statement, array $parameters) : PDOStatement
     {
         $query = $statement->queryString;
+        // Check if the statement was a success or not
         if ($statement->errorCode() != "00000") {
+            // Make exception for file and linenumbers
+            $e = new PDOException($statement->errorInfo()[2], $statement->errorCode());
+
+            // Output to log
             if (self::$DatabaseOptions["log"] >= 2) {
-                Log::DatabaseLog($statement->errorInfo()[2] . PHP_EOL . $this->fillQuery($query, $parameters));
+                Log::DatabaseLog(
+                    "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}" .
+                    PHP_EOL . "Query: " . $this->fillQuery($query, $parameters));
             }
+
+            // Output to screen
             if (self::$DatabaseOptions["debug"] >= 2) {
-                var_dump($this->fillQuery($query, $parameters));
-                var_dump($statement->errorInfo());
+                var_dump($e->getMessage());
+                var_dump("{$e->getFile()} at {$e->getLine()}");
             }
         }
 
@@ -312,6 +336,10 @@ trait Database
 
     /**
      * The handler for a Exceptions\PDOException
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
      *
      * @param \PDOException $e          The exception to handle
      * @param               $query      The query that causes the exception
@@ -335,7 +363,6 @@ trait Database
         if (self::$DatabaseOptions['log'] >= 1) {
             Log::DatabaseLog(
                 "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}" .
-                PHP_EOL . "Trace:" . json_encode($e->getTrace()) .
                 PHP_EOL . "Query: " . $this->fillQuery($query, $parameters)
             );
         }
@@ -349,7 +376,9 @@ trait Database
     /**
      * Fill the prepared query with its parameters.
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param string $query      The query to fill
      * @param array  $parameters The parameters of the query
@@ -371,7 +400,8 @@ trait Database
     /**
      * This function returns whether or not a transaction is active
      *
-     * @version 1.0.6
+     * @since   1.0.6
+     * @version 1.0
      *
      * @return bool
      */
@@ -383,7 +413,8 @@ trait Database
     /**
      * This function toggles auto commit
      *
-     * @version 1.0.6
+     * @since   1.0.6
+     * @version 1.0
      *
      * @return void
      */

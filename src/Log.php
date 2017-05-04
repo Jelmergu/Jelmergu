@@ -3,12 +3,11 @@
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
  * @version 1.0
  * @since   1.0.6
- *
+ * @todo Add DocBlock for each method
  * @package Jelmergu/Jelmergu
  */
 
 namespace Jelmergu;
-
 
 use Jelmergu\Exceptions\InvalidFileSystemRights;
 
@@ -18,7 +17,7 @@ class Log
     /**
      * @var string Relative or absolute path to the folder where the logs are located
      */
-    public static $logLocation = "";
+    public static $logLocation = "/";
 
     public static function setLogLocation(string $path)
     {
@@ -35,15 +34,26 @@ class Log
         self::$logLocation = $newPath;
     }
 
-    protected static function writeLog($logName, $message, ...$extra)
+    public static function writeLog($logName, $message, ...$extra)
     {
+        if(Validator::objectOrArray($message) === true) {
+            $message = json_encode($message);
+        }
+
         $file = fopen(self::$logLocation . $logName.".log", "a");
         fwrite($file, self::prepareMessage($message));
+
         if (isset($extra[0][0]) === true){
             foreach ($extra[0] as $message) {
+
+                if(Validator::objectOrArray($message) === true) {
+                    $message = json_encode($message);
+                }
+
                 fwrite($file, self::prepareMessage($message));
             }
         }
+
         fclose($file);
     }
 
@@ -70,13 +80,7 @@ class Log
 
     private static function prepareMessage(string $message)
     {
-        if (is_object($message) === TRUE || is_array($message)) {
-            $message = json_encode($message);
-        }
-        $now = new DateTime();
-
-        return "[" . $now->format("Y-m-d H:i:s:u") . "] " . $message . PHP_EOL;
-
+        return "[" . (new Date())->format("Y-m-d H:i:s:u") . "] " . $message . PHP_EOL;
     }
 
 }

@@ -15,15 +15,15 @@ use DateTime;
 /**
  * The class Date contains additional options for date
  *
- * @package Jelmergu
+ * @package Jelmergu/Jelmergu
  */
 class Date extends DateTime
 {
     /**
      * Changes the date(m) value to the dutch version of date(F)
-     * v0.1
      *
-     * @version v1.0
+     * @since   1.0
+     * @version 1.0
      *
      * @param  string $month Numeric representation of a month, with leading zeros as returned by date(m)
      *
@@ -52,7 +52,8 @@ class Date extends DateTime
     /**
      * Add or subtract specified years from the current date
      *
-     * @version 1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param int $years The years to add or subtract. Subtraction is specified with a minus
      *
@@ -72,7 +73,8 @@ class Date extends DateTime
     /**
      * Add or subtract specified months from the current date
      *
-     * @version 1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param int $months The months to add or subtract. Subtraction is specified with a minus
      *
@@ -92,7 +94,8 @@ class Date extends DateTime
     /**
      * Add or subtract specified days from the current date
      *
-     * @version 1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param int $days The days to add or subtract. Subtraction is specified with a minus
      *
@@ -112,7 +115,8 @@ class Date extends DateTime
     /**
      * Add or subtract specified hours from the current date
      *
-     * @version 1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param int $hours The hours to add or subtract. Subtraction is specified with a minus
      *
@@ -132,7 +136,8 @@ class Date extends DateTime
     /**
      * Add or subtract specified minutes from the current date
      *
-     * @version 1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param int $minutes The minutes to add or subtract. Subtraction is specified with a minus
      *
@@ -152,7 +157,8 @@ class Date extends DateTime
     /**
      * Add or subtract specified seconds from the current date
      *
-     * @version 1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param int $seconds The seconds to add or subtract. Subtraction is specified with a minus
      *
@@ -172,7 +178,8 @@ class Date extends DateTime
     /**
      * Check if the current date is between the input dates
      *
-     * @version v1.0.5
+     * @since   1.0.5
+     * @version 1.0
      *
      * @param string $lowerDate The beginning of the date range
      * @param string $upperDate The end of the date range

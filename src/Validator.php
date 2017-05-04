@@ -3,7 +3,7 @@
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
  * @since   1.0
  * @version 1.0.3
- *
+ * @todo    Correct version information in the docblocks
  * @package Jelmergu/Jelmergu
  */
 
@@ -14,8 +14,9 @@ namespace Jelmergu;
  *
  * The class has methods that take multiple arguments to check values according to the input parameters
  *
- * @version v1.0
- * @package Jelmergu
+ * @since   1.0
+ * @version 1.0
+ * @package Jelmergu/Jelmergu
  */
 class Validator
 {
@@ -38,10 +39,11 @@ class Validator
     /**
      * This method check if the specified $indices are set and numeric in the fields array
      *
+     * @since   1.0
+     * @version 1.0
+     *
      * @param array $fields
      * @param array $indices
-     *
-     * @version v1.0
      *
      * @return bool
      */
@@ -63,10 +65,11 @@ class Validator
     /**
      * Check if one of the supplied keys exists in the array
      *
+     * @since   1.0.4
+     * @version 1.0
+     *
      * @param array $array The array to find a key in
      * @param array $keys  The keys which are to be searched for
-     *
-     * @version 1.0.4
      *
      * @return bool
      */
@@ -83,6 +86,9 @@ class Validator
 
     /**
      * Checks if one of values is equal to the input string
+     *
+     * @since   1.0.
+     * @version 1.0
      *
      * @param string $field  The string to check
      * @param array  $values An array of allowed values
@@ -104,10 +110,11 @@ class Validator
     /**
      * This method check if the specified $indices are set in the fields array
      *
+     * @since   1.0
+     * @version 1.0
+     *
      * @param array $fields  This is the array that contains key => value pairs that have to be validated
      * @param array $indices This is the array that contains the keys that have to be set
-     *
-     * @version v1.0
      *
      * @return bool Returns true if all indices are set in the fields array
      */
@@ -125,10 +132,11 @@ class Validator
     /**
      * This method checks if the specified indices contain the specified type in the fields array
      *
+     * @version 1.0
+     * @since   1.0
+     *
      * @param array $fields
      * @param array $indices
-     *
-     * @version v1.0
      *
      * @return bool
      */
@@ -148,11 +156,12 @@ class Validator
     /**
      * This method checks if the specified indices contain the specified type in the fields array
      *
+     * @todo    Change it to be shorter
+     * @since   1.0
+     * @version 1.0
+     *
      * @param mixed  $field    The value of the field to check
      * @param string $constant One of the constants of self
-     *
-     * @todo    Change it to be shorter
-     * @version v1.0
      *
      * @return bool
      */
@@ -214,10 +223,11 @@ class Validator
     /**
      * Check whether or not the input variable is either an object or an array
      *
-     * @param $var The variable to check
-     *
      * @since   1.0.6
      * @version 1.0
+     *
+     * @param $var The variable to check
+     *
      * @return bool
      */
     public static function objectOrArray($var)
@@ -228,7 +238,8 @@ class Validator
     /**
      * Validate a email address
      *
-     * @version 1.0.3
+     * @since   1.0.3
+     * @version 1.0
      *
      * @param string $mailAddress The email adres to validate
      *
@@ -251,13 +262,13 @@ class Validator
         return false;
     }
 
-
     /**
      * Validate the local part of an email address
      *
      * @unsupported Comments
      *
-     * @version     1.0.3
+     * @since       1.0.3
+     * @version     1.0
      *
      * @param string $local The local part of the email address
      *
@@ -311,7 +322,8 @@ class Validator
      *
      * @unsupported Comments
      *
-     * @version     1.0.3
+     * @since       1.0.3
+     * @version     1.0
      *
      * @param string $domain The domain of an email address
      *

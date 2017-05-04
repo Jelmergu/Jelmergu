@@ -16,7 +16,8 @@ class Hashing
     /**
      * Validates the input password if it is md5 and converts hash to password_hash
      *
-     * @version v1.0.1
+     * @version 1.0
+     * @since 1.0.1
      *
      * @param string $password The plain text to check the hash against
      * @param string $hash     The hash to check. Is passed as reference so will contain the resulting hash
@@ -38,7 +39,8 @@ class Hashing
     /**
      * Validates the input password and converts to password_hash
      *
-     * @version v1.0.6
+     * @version 1.0
+     * @since 1.0.6
      *
      * @param string $password The plain text password to check against
      * @param string $hash     The hash to compare
@@ -62,7 +64,8 @@ class Hashing
      *
      * @note    Unknown if always correct
      *
-     * @version v1.0.1
+     * @version 1.0
+     * @since 1.0.1
      *
      * @param string $hash The hash to check
      *

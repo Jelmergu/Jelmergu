@@ -1,13 +1,11 @@
 <?php
 /**
  * @author  Jelmer Wijnja <info@jelmerwijnja.nl>
- * @version 1.0.6
+ * @version 1.0
  * @since   1.0.6
  *
  * @package Jelmergu/Jelmergu
  */
-
-
 
 namespace Jelmergu\Exceptions;
 
@@ -18,7 +16,7 @@ class InvalidFileSystemRights extends Exception
     public $missing;
 
 
-    public function __construct($code = 0, $path = ".", $message = "", \Exception $previous = NULL)
+    public function __construct($code = 0, $path = ".", $message = "", \Exception $previous = null)
     {
 
         $message = $message == "" ? "Missing permissions" : $message . " Missing permissions";
@@ -28,8 +26,7 @@ class InvalidFileSystemRights extends Exception
 
         if ($code < 8) {
             $code = $code . 00;
-        }
-        elseif ($code < 78) {
+        } elseif ($code < 78) {
             $code = $code . 0;
         }
 
@@ -41,10 +38,10 @@ class InvalidFileSystemRights extends Exception
 
         foreach ($this->perms['required'] as $user => $value) {
             $string = "";
-            $required = $this->calculatePermission((int) $value);
-            $given = $this->calculatePermission((int) $this->perms['given']);
+            $required = $this->calculatePermission((int)$value);
+            $given = $this->calculatePermission((int)$this->perms['given']);
             foreach ($required as $key => $permis) {
-                if (isset($given[$key]) === TRUE || $key == 0) {
+                if (isset($given[$key]) === true || $key == 0) {
                     continue;
                 }
                 $string .= $string == "" ? $permis : ", " . $permis;
@@ -59,6 +56,9 @@ class InvalidFileSystemRights extends Exception
 
     /**
      * Calculate the permission
+     *
+     * @since 1.0.6
+     * @version 1.0
      *
      * @param $permission The permission to calculate
      *
