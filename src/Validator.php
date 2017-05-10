@@ -131,8 +131,10 @@ class Validator
 
     /**
      * This method checks if the specified indices contain the specified type in the fields array
+     * Note: Validator considers the strings "" and '' as not a string, for an empty string is not a string of
+     * characters
      *
-     * @version 1.0
+     * @version 1.0.1
      * @since   1.0
      *
      * @param array $fields
@@ -145,8 +147,16 @@ class Validator
         foreach ($indices as $key => $value) {
             if (isset($fields[$key]) === false) {
                 return false;
-            } elseif (self::is($fields[$key], $value) === false || $value == "") {
-                return false;
+            } elseif (isset($fields[$value]) === false) {
+                /*
+                 * Check for $fields[$value] is to make it possible to do something like
+                 *   Validator::areMixed($fields, [0, 1 => Validator::NOT_EMPTY]);
+                 */
+                if ($value != self::EMPTY && $fields[$key] == "") {
+                    return false;
+                } elseif (self::is($fields[$key], $value) === false) {
+                    return false;
+                }
             }
         }
 
@@ -214,7 +224,6 @@ class Validator
                 if ($field == $constant) {
                     return true;
                 }
-
                 return false;
             break;
         }
@@ -290,7 +299,7 @@ class Validator
             $localParts = $local;
             if (strpos($local, '."') > 0) {
                 $localParts = explode('."', $local);
-                $preQuoute = $localParts[0];
+                $preQuote = $localParts[0];
                 $localParts = '"' . $localParts[1];
             }
             if (strpos($local, '".') > 0) {
@@ -300,9 +309,9 @@ class Validator
             }
 
             if (preg_match($quotedStringPart, $localParts) > 0) {
-                if (isset($preQuoute) === true && preg_match($unquotedStringPart, $preQuoute) == 0) {
+                if (isset($preQuote) === true && preg_match($unquotedStringPart, $preQuote) == 0) {
                     return false;
-                } elseif (isset($postQuoute) === true && preg_match($unquotedStringPart, $postQuote) == 0) {
+                } elseif (isset($postQuote) === true && preg_match($unquotedStringPart, $postQuote) == 0) {
                     return false;
                 }
 
