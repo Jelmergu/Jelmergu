@@ -21,20 +21,22 @@ namespace Jelmergu;
 class Validator
 {
 
-    const NUMERIC     = "number";
-    const NOT_NUMERIC = "!number";
-    const STRING      = "string";
-    const NOT_STRING  = "!string";
-    const NULL        = "null";
-    const NOT_NULL    = "!null";
-    const BOOL        = "bool";
-    const NOT_BOOL    = "!bool";
+    const NUMERIC     = "is_numeric";
+    const STRING      = "is_string";
+    const NULL        = "is_null";
+    const BOOL        = "is_bool";
+    const ARRAY       = "is_array";
+    const EMPTY       = "is_empty";
+    const OBJECT      = "is_object";
+    const NOT_NUMERIC = "!is_numeric";
+    const NOT_STRING  = "!is_string";
+    const NOT_NULL    = "!is_null";
+    const NOT_BOOL    = "!is_bool";
+    const NOT_ARRAY   = "!is_array";
+    const NOT_EMPTY   = "!is_empty";
+    const NOT_OBJECT  = "!is_object";
     const TRUE        = "true";
     const FALSE       = "false";
-    const ARRAY       = "array";
-    const NOT_ARRAY   = "!array";
-    const EMPTY       = "empty";
-    const NOT_EMPTY   = "!empty";
 
     /**
      * This method check if the specified $indices are set and numeric in the fields array
@@ -166,66 +168,28 @@ class Validator
     /**
      * This method checks if the specified indices contain the specified type in the fields array
      *
-     * @todo    Change it to be shorter
      * @since   1.0
-     * @version 1.0
+     * @version 1.0.1
      *
-     * @param mixed  $field    The value of the field to check
-     * @param string $constant One of the constants of self
+     * @param mixed  $field    The value to check
+     * @param string $constant One of the constants of self, an other function name with one argument or as string to
+     *                         perform lose comparison on
      *
      * @return bool
      */
     public static function is($field, string $constant) : bool
     {
-        switch ($constant) {
-            case self::NUMERIC:
-                return is_numeric($field) === true;
-            break;
-            case self::NOT_NUMERIC:
-                return is_numeric($field) === false;
-            break;
-            case self::STRING:
-                return is_string($field) === true;
-            break;
-            case self::NOT_STRING:
-                return is_string($field) === false;
-            break;
-            case self::NULL:
-                return is_null($field) === true;
-            break;
-            case self::NOT_NULL:
-                return is_null($field) === false;
-            break;
-            case self::BOOL:
-                return is_bool($field) === true;
-            break;
-            case self::NOT_BOOL:
-                return is_bool($field) === false;
-            break;
-            case self::TRUE:
-                return $field === true;
-            break;
-            case self::FALSE:
-                return $field === false;
-            break;
-            case self::ARRAY:
-                return is_array($field) === true;
-            break;
-            case self::NOT_ARRAY:
-                return is_array($field) === false;
-            break;
-            case self::EMPTY:
-                return empty($field) === true;
-            break;
-            case self::NOT_EMPTY:
-                return empty($field) === false;
-            break;
-            default:
-                if ($field == $constant) {
-                    return true;
-                }
-                return false;
-            break;
+        $constants = (new \ReflectionClass(self::class))->getConstants();
+        if (in_array($constant, $constants)) {
+            if ($constant === self::FALSE || $constant === self::TRUE) {
+                return $constant == self::FALSE ? $field === false : $field === true;
+            } else {
+                return $constant($field) === true;
+            }
+        } elseif (\function_exists($constant) === true) {
+            return (bool) $constant($field);
+        } else {
+            return $constant == $field;
         }
     }
 
