@@ -33,19 +33,56 @@ class ValidatorTest extends TestCase
 
     public function test_all_required_keys_are_set()
     {
-        $arrayKeysExist = Validator::areSet([
-            0 => 'hello',
-            3 => 'World',
-            4 => 'test'
-        ], [0, 3, 4]);
+        $arrayKeysExist = Validator::areSet(
+            [
+                0 => 'hello',
+                3 => 'World',
+                4 => 'test',
+            ],
+            [0, 3, 4]);
 
-        $arrayWithMissingKeys = Validator::areSet([
-            3 => 'tester'
-        ], [2]);
+        $arrayWithMissingKeys = Validator::areSet(
+            [
+                3 => 'tester',
+            ],
+            [2]);
 
         $this->assertTrue($arrayKeysExist);
 
         $this->assertFalse($arrayWithMissingKeys);
+    }
+
+    public function test_all_required_keys_are_type()
+    {
+        $arrayKeysAreType = Validator::areMixed(
+            [
+                0 => 'hello',
+                2 => 'World',
+                3 => 'test',
+                4 => 'someTest',
+            ],
+            [0 => Validator::STRING, 2 => "is_string", 3 => Validator::NOT_NUMERIC, 4 => "someTest"]);
+
+        $arrayKeysAreNotType = Validator::areMixed(
+            [
+                3 => 'tester',
+            ],
+            [3 => Validator::NUMERIC]);
+
+        $this->assertTrue($arrayKeysAreType);
+
+        $this->assertFalse($arrayKeysAreNotType);
+    }
+
+    public function test_email_with_quotes()
+    {
+        $validEmail = Validator::validateMail('"much.more unusual"@example.com');
+
+        $invalidEmail = Validator::validateMail('a"b(c)d,e:f;g<h>i[j\k]l@example.com');
+
+        $this->assertTrue($validEmail);
+
+        $this->assertFalse($invalidEmail);
     }
 }
 

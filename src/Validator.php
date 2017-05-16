@@ -184,7 +184,14 @@ class Validator
             if ($constant === self::FALSE || $constant === self::TRUE) {
                 return $constant == self::FALSE ? $field === false : $field === true;
             } else {
-                return $constant($field) === true;
+                $value = true;
+                if ($constant[0] == "!") {
+                    $value = false;
+                    $constant = str_split($constant);
+                    unset($constant[0]);
+                    $constant = implode($constant);
+                }
+                return $constant($field) === $value;
             }
         } elseif (\function_exists($constant) === true) {
             return (bool) $constant($field);
