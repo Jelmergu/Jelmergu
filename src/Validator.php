@@ -296,7 +296,7 @@ class Validator
      * @unsupported Comments
      *
      * @since       1.0.3
-     * @version     1.0
+     * @version     1.0.1
      *
      * @param string $domain The domain of an email address
      *
@@ -313,19 +313,17 @@ class Validator
             }
         }
 
-        $ipRegex = '`\[([0-9\.]{0,4}){0,4}|(IPv6:([a-fA-F0-9:]{0,5}){1,8})\]$`';
-        $domainRegex = "`^[a-zA-Z0-9\.\-]{1,245}$`";
+        $domainRegex = "`((?<ip>(?<=^\[{1})(?:[0-9.]{1,4}){4}|(?<=^\[IPv6:)(?:[a-f0-9:]{1,5}){1,8})(?=\]{1}$)|^[a-z0-9\.\-]{1,245}$)`i";
 
-        if (preg_match($ipRegex, $domain) > 0) {
-            $domain = str_ireplace(["[", "]", "IPv6"], "", $domain);
-            if (filter_var($domain, FILTER_VALIDATE_IP) === false) {
-                return false;
+        if (preg_match($domainRegex, $domain, $matches) > 0) {
+            if (isset($matches['ip']) === true) {
+                if (filter_var($matches['ip'], FILTER_VALIDATE_IP) === false) {
+                    return false;
+                }
             }
-        } elseif (preg_match($domainRegex, $domain) == 0) {
-            return false;
+            return true;
         }
-
-        return true;
+        return false;
     }
 }
 

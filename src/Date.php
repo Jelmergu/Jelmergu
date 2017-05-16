@@ -50,6 +50,33 @@ class Date extends DateTime
     }
 
     /**
+     * Returns the time in 24-hour:minute:second format
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     * @return string
+     */
+    public function getTime()
+    {
+        return $this->format("H:i:s");
+    }
+
+    /**
+     * Returns the date in 'yyyy-mm-dd' format
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     * @return string
+     */
+    public function getDate()
+    {
+        return $this->format("Y-m-d");
+    }
+
+
+    /**
      * Add or subtract specified years from the current date
      *
      * @since   1.0.5
