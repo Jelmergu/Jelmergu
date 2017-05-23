@@ -145,7 +145,6 @@ trait Database
         return $this->getPDO()->prepare($query);
     }
 
-
     /**
      * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
      *
@@ -168,6 +167,24 @@ trait Database
 
         if ($statementReturn === true) {
             return $statement;
+        }
+    }
+
+    /**
+     * This method executes multiple queries straight after each other
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     * @param array $statements An array of statements
+     * @param array $parameters An array of parameters. Can be more than needed for all queries
+     *
+     * @return void
+     */
+    public function multiExecute(array &$statements, array $parameters = [])
+    {
+        foreach ($statements as &$statement) {
+            $statement = $this->execute($statement, $parameters, true);
         }
     }
 

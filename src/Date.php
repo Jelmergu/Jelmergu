@@ -20,6 +20,22 @@ use DateTime;
 class Date extends DateTime
 {
     /**
+     * Construct a Date object with microtime
+     *
+     * @since 1.0.6
+     * @version 1.0
+     *
+     * @inheritDoc
+     */
+    public function __construct($time='now', DateTimeZone $timezone=null)
+    {
+        if($time == 'now') {
+            $time = date("Y-m-d H:i:s").".".explode(".", microtime(true))[1];
+        }
+        parent::__construct($time, $timezone);
+    }
+
+    /**
      * Changes the date(m) value to the dutch version of date(F)
      *
      * @since   1.0
@@ -88,11 +104,11 @@ class Date extends DateTime
      */
     public function addYears(int $years) : Date
     {
-        $meth = "add";
+        $method = "add";
         if ($years < 0) {
-            $meth = "sub";
+            $method = "sub";
         }
-        $this->$meth(new \DateInterval("P" . sqrt(pow($years, 2)) . "Y"));
+        $this->$method(new \DateInterval("P" . sqrt(pow($years, 2)) . "Y"));
 
         return $this;
     }
@@ -109,11 +125,11 @@ class Date extends DateTime
      */
     public function addMonths(int $months) : Date
     {
-        $meth = "add";
+        $method = "add";
         if ($months < 0) {
-            $meth = "sub";
+            $method = "sub";
         }
-        $this->$meth(new \DateInterval("P" . sqrt(pow($months, 2)) . "M"));
+        $this->$method(new \DateInterval("P" . sqrt(pow($months, 2)) . "M"));
 
         return $this;
     }
@@ -130,11 +146,11 @@ class Date extends DateTime
      */
     public function addDays(int $days) : Date
     {
-        $meth = "add";
+        $method = "add";
         if ($days < 0) {
-            $meth = "sub";
+            $method = "sub";
         }
-        $this->$meth(new \DateInterval("P" . sqrt(pow($days, 2)) . "D"));
+        $this->$method(new \DateInterval("P" . sqrt(pow($days, 2)) . "D"));
 
         return $this;
     }
@@ -151,11 +167,11 @@ class Date extends DateTime
      */
     public function addHours(int $hours) : Date
     {
-        $meth = "add";
+        $method = "add";
         if ($hours < 0) {
-            $meth = "sub";
+            $method = "sub";
         }
-        $this->$meth(new \DateInterval("PT" . sqrt(pow($hours, 2)) . "H"));
+        $this->$method(new \DateInterval("PT" . sqrt(pow($hours, 2)) . "H"));
 
         return $this;
     }
@@ -172,11 +188,11 @@ class Date extends DateTime
      */
     public function addMinutes(int $minutes) : Date
     {
-        $meth = "add";
+        $method = "add";
         if ($minutes < 0) {
-            $meth = "sub";
+            $method = "sub";
         }
-        $this->$meth(new \DateInterval("PT" . sqrt(pow($minutes, 2)) . "M"));
+        $this->$method(new \DateInterval("PT" . sqrt(pow($minutes, 2)) . "M"));
 
         return $this;
     }
@@ -193,11 +209,11 @@ class Date extends DateTime
      */
     public function addSeconds(int $seconds) : Date
     {
-        $meth = "add";
+        $method = "add";
         if ($seconds < 0) {
-            $meth = "sub";
+            $method = "sub";
         }
-        $this->$meth(new \DateInterval("PT" . sqrt(pow($seconds, 2)) . "S"));
+        $this->$method(new \DateInterval("PT" . sqrt(pow($seconds, 2)) . "S"));
 
         return $this;
     }
