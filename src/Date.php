@@ -10,7 +10,8 @@
 
 namespace Jelmergu;
 
-use DateTime;
+use \DateTime;
+use DateTimeZone;
 
 /**
  * The class Date contains additional options for date
@@ -19,6 +20,15 @@ use DateTime;
  */
 class Date extends DateTime
 {
+    public function __construct($time = 'now', DateTimeZone $timezone = null)
+    {
+        if(!is_string($time)){
+            $time = date("Y-m-d", $time);
+        }
+
+        parent::__construct($time, $timezone);
+    }
+
     /**
      * Construct a Date object with microtime
      *
