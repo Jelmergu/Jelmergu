@@ -1,6 +1,6 @@
 {
     "name": "jelmergu/jelmergu",
-    "description": "A library",
+    "description": "A library containing some usefull php Classes",
     "type": "library",
     "license": "MIT",
     "authors": [
