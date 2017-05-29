@@ -191,10 +191,14 @@ class Validator
                     unset($constant[0]);
                     $constant = implode($constant);
                 }
+                if ($constant == self::EMPTY) {
+                    return empty($field) === $value;
+                }
+
                 return $constant($field) === $value;
             }
         } elseif (\function_exists($constant) === true) {
-            return (bool) $constant($field);
+            return (bool)$constant($field);
         } else {
             return $constant == $field;
         }
@@ -328,8 +332,10 @@ class Validator
                     return false;
                 }
             }
+
             return true;
         }
+
         return false;
     }
 }
