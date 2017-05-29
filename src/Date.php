@@ -12,6 +12,10 @@ namespace Jelmergu;
 
 use DateTime;
 
+const DATE_MYSQL_DATE = "Y-m-d";
+const DATE_MYSQL_TIMESTAMP = "Y-m-d h:i:s";
+const DATE_MYSQL_TIME = "h:i:s";
+
 /**
  * The class Date contains additional options for date
  *
@@ -22,15 +26,15 @@ class Date extends DateTime
     /**
      * Construct a Date object with microtime
      *
-     * @since 1.0.6
+     * @since   1.0.6
      * @version 1.0
      *
      * @inheritDoc
      */
-    public function __construct($time='now', DateTimeZone $timezone=null)
+    public function __construct($time = 'now', DateTimeZone $timezone = null)
     {
-        if($time == 'now') {
-            $time = date("Y-m-d H:i:s").".".explode(".", microtime(true))[1];
+        if ($time == 'now') {
+            $time = date("Y-m-d H:i:s") . "." . explode(".", microtime(true))[1];
         }
         parent::__construct($time, $timezone);
     }
@@ -90,7 +94,6 @@ class Date extends DateTime
     {
         return $this->format("Y-m-d");
     }
-
 
     /**
      * Add or subtract specified years from the current date
@@ -233,4 +236,5 @@ class Date extends DateTime
     {
         return ($this->getTimestamp() >= strtotime($lowerDate) && $this->getTimestamp() <= strtotime($upperDate));
     }
+
 }

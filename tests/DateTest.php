@@ -43,4 +43,12 @@ class DateTest extends TestCase
         $this->assertEquals("2017-02-01 00:00:00", $oneMoreMonth);
         $this->assertEquals("2016-12-01 00:00:00", $oneLessMonth);
     }
+
+    public function test_date_format_constants () {
+        $date = new Date("2017-01-01 00:00:00");
+
+        $this->assertEquals("2017-01-01", $date->format(DATE_MYSQL_DATE));
+        $this->assertEquals("00:00:00", $date->format(DATE_MYSQL_TIME));
+        $this->assertEquals("2017-01-01 00:00:00", $date->format(DATE_MYSQL_TIMESTAMP));
+    }
 }
