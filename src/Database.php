@@ -2,16 +2,18 @@
 /**
  * @author    Jelmer Wijnja <info@jelmerwijnja.nl>
  * @copyright jelmerwijnja.nl
- * @version   1.0.4
+ * @since     1.0.4
+ * @version   1.0.2
  *
- * @package   Jelmergu
+ * @package   Jelmergu/Jelmergu
  */
 
 namespace Jelmergu;
 
+use Jelmergu\Exceptions\PDOException as PDOException;
 use PDO;
 use PDOStatement;
-use PDOException;
+
 
 /**
  * A database trait containing shorthands for PDO
@@ -19,7 +21,7 @@ use PDOException;
  * This trait combines some methods of PDO that often get executed in sequence
  * Currently only supports MySQL
  *
- * @package Jelmergu
+ * @package Jelmergu/Jelmergu
  */
 trait Database
 {
@@ -37,28 +39,56 @@ trait Database
      */
     public static $PDOOptions = [];
 
+    /**
+     * @var array $DatabaseOptions Contains options for the Class
+     *
+     * @option Debug Determines the verbosity of the trait:
+     *         0 = Silent, No errors are given, default
+     *         1 = Exceptions, Only exceptions are thrown
+     *         2 = Var Dumps, var_dumps are printed and exceptions are thrown
+     * @option Log Determines what errors are send to log
+     *         0 = Silent, No errors are logged
+     *         1 = Exceptions, Only exceptions are thrown
+     *         2 = Var Dumps, var_dumps are printed and exceptions are thrown, default
+     *
+     */
+    public static $DatabaseOptions = ["debug" => 0, "log" => 2];
+
+    public $fetchMethod = PDO::FETCH_ASSOC;
 
     /**
      * Return a pdo instance
      *
-     * @version 1.0.4
-     * @throws PDOException
+     * @since   1.0.4
+     * @version 1.0
+     * @throws  Exceptions\PDOException
      *
      * @return PDO
      */
     private function getPDO() : PDO
     {
-        if (is_a(self::$db, "PDO") === FALSE) {
+        // Check if the PDO instance has been created
+        if (is_a(self::$db, "PDO") === false) {
             $type = "mysql";
-            if (defined("DB_TYPE") === TRUE) {
+            if (defined("DB_TYPE") === true) {
                 $type = DB_TYPE;
             }
-            if (defined("DB_HOST") === TRUE && defined("DB_NAME") === TRUE && defined("DB_USERNAME") === TRUE && defined("DB_PASSWORD") === TRUE) {
+
+            // Check if the required constants have been set
+            $missingConstant = [];
+            $requiredConstants = ["DB_HOST", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"];
+            foreach ($requiredConstants as $constant) {
+                if (defined($constant) === false) {
+                    $missingConstant[] = $constant;
+                }
+            }
+
+            if (count($missingConstant) === 0) {
                 $extraFields = "";
                 $options = ["charset", "port"];
 
                 foreach ($options as $option) {
-                    if (defined("DB_" . strtoupper($option)) === TRUE) {
+                    if (defined("DB_" . strtoupper($option)) === true) {
                         $extraFields .= ";" . $option . "=" . constant("DB_" . strtoupper($option));
                     }
                 }
@@ -69,18 +99,30 @@ trait Database
                     . $extraFields,
                     DB_USERNAME,
                     DB_PASSWORD,
-                    self::$options
+                    self::$PDOOptions
                 );
-            }
-            else {
-                $missingConstant = "";
-                $requiredConstants = ["DB_HOST", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"];
-                foreach ($requiredConstants as $constant) {
-                    if (defined($constant) === FALSE) {
-                        $missingConstant .= $constant . ", ";
+            } else {
+                // Some of the required constants are not set
+                foreach ($missingConstant as $constant) {
+                    if (isset($missing) === false) {
+                        $missing = "{$constant}";
+                    } else {
+                        $missing .= ", {$constant}";
                     }
                 }
-                throw new PDOException("Missing constants:" . $missingConstant);
+
+                // Throw a exception, or log the exception and continue
+                do {
+                    if (self::$DatabaseOptions["debug"] >= 1) {
+                        throw new \PDOException("Missing constants: {$missing}");
+                    } elseif (self::$DatabaseOptions["log"] >= 1) {
+                        Log::DatabaseLog("Missing constants: {$missing}");
+                        continue;
+                    }
+                } while (false);
+
+                // Prevent exception with calling PDO method on null by returning a empty pdo object
+                return new PDO($type);
             }
         }
 
@@ -89,6 +131,10 @@ trait Database
 
     /**
      * Prepare a query
+     *
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param string $query The query to prepare
      *
@@ -100,9 +146,90 @@ trait Database
     }
 
     /**
-     * Execute the query and count the affected rows
+     * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
      *
-     * @version 1.0.4
+     * @since   1.0.6
+     * @version 1.0
+     *
+     *
+     * @param PDOStatement $statement       The statement to execute
+     * @param array        $parameters      A list of key => value pairs, where some match the name of the parameters in
+     *                                      the prepared statement. The keys don't need to be prefixed with a :
+     * @param bool         $statementReturn Whether or not the statement should be returned for object chaining
+     *
+     * @return void|PDOStatement
+     */
+    public function execute(PDOStatement $statement, array $parameters = [], bool $statementReturn = false)
+    {
+        $this->parametrize($statement->queryString, $parameters);
+        $statement->execute($parameters);
+        $this->handleError($statement, $parameters);
+
+        if ($statementReturn === true) {
+            return $statement;
+        }
+    }
+
+    /**
+     * This method executes multiple queries straight after each other
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     * @param array $statements An array of statements
+     * @param array $parameters An array of parameters. Can be more than needed for all queries
+     *
+     * @return void
+     */
+    public function multiExecute(array &$statements, array $parameters = [])
+    {
+        foreach ($statements as &$statement) {
+            $statement = $this->execute($statement, $parameters, true);
+        }
+    }
+
+    /**
+     * Parameterize every input parameter that is used by the query
+     *
+     * @since   1.0.6
+     * @version 1.0
+     * @throws Exceptions\PDOException
+     *
+     * @param string $query      The query to extract the parameters from
+     * @param array  $parameters A list of parameters that might or might not be needed by the query
+     *
+     * @return Database
+     */
+    protected function parametrize(string $query, array &$parameters) : self
+    {
+        if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== false) {
+            $outputParameters = [];
+            foreach ($matches[1] as $key => $parameter) {
+                if (isset($parameters[$matches[0][$key]]) === true) {
+                    $outputParameters[":{$parameter}"] = $parameters[":{$parameter}"];
+                    continue;
+                } elseif (isset($parameters[$parameter]) === true) {
+                    $outputParameters[':' . $parameter] = $parameters[$parameter];
+                } else {
+                    $e = new PDOException(
+                        "Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'",
+                        "HY093");
+                    $this->handleException($e, $query, $parameters);
+                }
+            }
+            $parameters = $outputParameters;
+        }
+
+        return $this;
+
+    }
+
+    /**
+     * Prepare, execute and handle errors of the query and count the affected rows
+     *
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param int    $rows       The reference to the variable that will contain the amount of rows
      * @param string $query      The query to execute
@@ -112,17 +239,17 @@ trait Database
      */
     protected function getRows(&$rows = 0, string $query, $parameters = []) : self
     {
-
-        foreach ($parameters as $parameter => $value) {
-            if (strpos($parameter, ":") != 0) {
-                $parameters[':' . $parameter] = $value;
-                unset($parameters[$parameter]);
-            }
+        try {
+            $this->result = $this->execute(
+                $statement = $this->prepare($query),
+                $parameters,
+                true
+            )->fetchAll($this->fetchMethod);
+            $this->fetchMethod = PDO::FETCH_ASSOC;
+            $rows = $statement->rowCount();
+        } catch (\PDOException $e) {
+            $this->handleException($e, $query, $parameters);
         }
-
-        ($statement = $this->prepare($query))->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
-        $rows = $statement->rowCount();
 
         return $this;
     }
@@ -130,7 +257,9 @@ trait Database
     /**
      * Execute a query and return all rows
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
@@ -139,25 +268,28 @@ trait Database
      */
     protected function queryData(string $query, $parameters = []) : self
     {
+        try {
+            $this->result = $this->execute(
+                $statement = $this->prepare($query),
+                $parameters,
+                true
+            )->fetchAll($this->fetchMethod);
+            $this->fetchMethod = PDO::FETCH_ASSOC;
 
-        foreach ($parameters as $parameter => $value) {
-            if (strpos($parameter, ":") != 0) {
-                $parameters[':' . $parameter] = $value;
-                unset($parameters[$parameter]);
-            }
+        } catch (\PDOException $e) {
+            $this->handleException($e, $query, $parameters);
         }
-
-        ($statement = $this->prepare($query))->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetchAll(PDO::FETCH_ASSOC);
 
         return $this;
     }
 
 
     /**
-     * Execute a query and fetch a single
+     * Execute a query and fetch a single row
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
@@ -166,16 +298,18 @@ trait Database
      */
     protected function queryRow($query, $parameters = []) : self
     {
+        try {
+            $this->result = $this->execute(
+                $statement = $this->prepare($query),
+                $parameters,
+                true
+            )->fetch($this->fetchMethod);
+            $this->fetchMethod = PDO::FETCH_ASSOC;
 
-        foreach ($parameters as $parameter => $value) {
-            if (strpos($parameter, ":") != 0) {
-                $parameters[':' . $parameter] = $value;
-                unset($parameters[$parameter]);
-            }
+        } // Handle the possible exception
+        catch (\PDOException $e) {
+            $this->handleException($e, $query, $parameters);
         }
-
-        ($statement = $this->prepare($query))->execute($parameters);
-        $this->result = $this->handleError($statement, $parameters)->fetch(PDO::FETCH_ASSOC);
 
         return $this;
     }
@@ -183,7 +317,9 @@ trait Database
     /**
      * Handle for a sql error
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param PDOStatement $statement  The statement with a possible error
      * @param array        $parameters The parameters used in the query
@@ -193,20 +329,22 @@ trait Database
     private function handleError(PDOStatement $statement, array $parameters) : PDOStatement
     {
         $query = $statement->queryString;
+        // Check if the statement was a success or not
         if ($statement->errorCode() != "00000") {
-            if ((bool) DEBUG === TRUE) {
-                var_dump($this->fillQuery($query, $parameters));
-                var_dump($statement->errorInfo());
+            // Make exception for file and linenumbers
+            $e = new PDOException($statement->errorInfo()[2], $statement->errorCode());
+
+            // Output to log
+            if (self::$DatabaseOptions["log"] >= 2) {
+                Log::DatabaseLog(
+                    "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}" .
+                    PHP_EOL . "Query: " . $this->fillQuery($query, $parameters));
             }
-            else {
-                if (file_exists(LOG_LOCATION . DIRECTORY_SEPARATOR . "database.log") === FALSE) {
-                    if (is_dir(LOG_LOCATION) === FALSE) {
-                        mkdir(LOG_LOCATION);
-                    }
-                }
-                $file = fopen(LOG_LOCATION . DIRECTORY_SEPARATOR . "database.log", "a");
-                fwrite($file, $statement->errorInfo()[2] . PHP_EOL . $this->fillQuery($query, $parameters));
-                fclose($file);
+
+            // Output to screen
+            if (self::$DatabaseOptions["debug"] >= 2) {
+                var_dump($e->getMessage());
+                var_dump("{$e->getFile()} at {$e->getLine()}");
             }
         }
 
@@ -214,22 +352,95 @@ trait Database
     }
 
     /**
+     * The handler for a Exceptions\PDOException
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     *
+     * @param \PDOException $e          The exception to handle
+     * @param               $query      The query that causes the exception
+     * @param array         $parameters The parameters of the query
+     *
+     * @return void
+     * @throws PDOException
+     */
+    private function handleException(\PDOException $e, $query, array $parameters)
+    {
+        /**
+         * Check if the current exception is already the exception from this library
+         * Note: somehow the exception created in Database::parametrize gets here as a \PDOException
+         *  instead of a \Jelmergu\Exception\PDOException
+         */
+        if (get_parent_class($e) == "RuntimeException") {
+            $e = new Exceptions\PDOException($e->getMessage(), $e->getCode());
+        }
+
+        // Log the exception if allowed
+        if (self::$DatabaseOptions['log'] >= 1) {
+            Log::DatabaseLog(
+                "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}" .
+                PHP_EOL . "Query: " . $this->fillQuery($query, $parameters)
+            );
+        }
+        // Throw the exception if allowed
+        if (self::$DatabaseOptions['debug'] >= 1) {
+            throw new Exceptions\PDOException($e->getMessage(), $e->getCode());
+
+        }
+    }
+
+    /**
      * Fill the prepared query with its parameters.
      *
-     * @version 1.0.4
+     * @since   1.0.4
+     * @version 1.0
+     *
      *
      * @param string $query      The query to fill
      * @param array  $parameters The parameters of the query
      *
      * @return string
      */
-    function fillQuery(string $query, array $parameters) : string
+    public function fillQuery(string $query, array $parameters) : string
     {
         foreach ($parameters as $key => $value) {
+            if ($key[0] != ":") {
+                $key = ":{$key}";
+            }
             $query = str_replace($key, '"' . $value . '"', $query);
         }
 
         return $query;
     }
 
+    /**
+     * This function returns whether or not a transaction is active
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     * @return bool
+     */
+    protected function getTransaction() : bool
+    {
+        return $this->getPDO()->inTransaction();
+    }
+
+    /**
+     * This function toggles auto commit
+     *
+     * @since   1.0.6
+     * @version 1.0
+     *
+     * @return void
+     */
+    protected function transaction()
+    {
+        if ($this->getTransaction() === false) {
+            $this->getPDO()->beginTransaction();
+        } else {
+            $this->getPDO()->commit();
+        }
+    }
 }

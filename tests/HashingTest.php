@@ -24,7 +24,7 @@ class HashingTest extends TestCase
 
         $referencedMd5HashOfHello = md5($plainText);
 
-        Hashing::md5ToPassHash($referencedMd5HashOfHello, $plainText);
+        Hashing::md5ToPassHash($plainText, $referencedMd5HashOfHello);
 
         $isValidPassword = password_verify($plainText, $referencedMd5HashOfHello);
 

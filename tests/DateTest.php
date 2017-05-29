@@ -23,4 +23,32 @@ class DateTest extends TestCase
         $this->assertFalse($afterrange);
     }
 
+    public function test_add_year() {
+        
+        $oneMoreYear = (new Date("2017-01-01"))->addYears(1)->format("Y-m-d H:i:s");
+        $oneLessYear = (new Date("2017-01-01"))->addYears(-1)->format("Y-m-d H:i:s");
+        $tenMoreYears= (new Date("2017-01-01"))->addYears(10)->format("Y-m-d H:i:s");
+        $tenLessYears= (new Date("2017-01-01"))->addYears(-10)->format("Y-m-d H:i:s");
+         
+        $this->assertEquals("2018-01-01 00:00:00", $oneMoreYear);
+        $this->assertEquals("2016-01-01 00:00:00", $oneLessYear);
+        $this->assertEquals("2027-01-01 00:00:00", $tenMoreYears);
+        $this->assertEquals("2007-01-01 00:00:00", $tenLessYears);
+    }
+
+    public function test_add_months () {
+        $oneMoreMonth = (new Date("2017-01-01"))->addMonths(1)->format("Y-m-d H:i:s");
+        $oneLessMonth = (new Date("2017-01-01"))->addMonths(-1)->format("Y-m-d H:i:s");
+
+        $this->assertEquals("2017-02-01 00:00:00", $oneMoreMonth);
+        $this->assertEquals("2016-12-01 00:00:00", $oneLessMonth);
+    }
+
+    public function test_date_format_constants () {
+        $date = new Date("2017-01-01 00:00:00");
+
+        $this->assertEquals("2017-01-01", $date->format(DATE_MYSQL_DATE));
+        $this->assertEquals("00:00:00", $date->format(DATE_MYSQL_TIME));
+        $this->assertEquals("2017-01-01 00:00:00", $date->format(DATE_MYSQL_TIMESTAMP));
+    }
 }
