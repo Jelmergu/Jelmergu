@@ -16,7 +16,7 @@
 #
 # Don't ignore some files
 #
-!composer.json
+!composer.*
 !.gitignore
 !phpunit.xml.dist
 !.travis.yml
