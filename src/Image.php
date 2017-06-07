@@ -20,7 +20,17 @@ namespace Jelmergu;
 class Image
 {
     private $image;
-    private $formats = ["png" => "imagepng", "gif" => "imagegif", "jpeg" => "imagejpeg"];
+    public $imageTypes  = [];
+    private $formats = [
+        "png"  => "imagepng",
+        "gif"  => "imagegif",
+        "jpeg" => "imagejpeg",
+        "jpg"  => "imagejpeg",
+        "wbmp" => "image2wbmp",
+        "bmp" => "imagebmp",
+        "webp" => "imagewebp",
+        "xbm" => "imagexbm",
+    ];
 
     /**
      * Image constructor.
@@ -37,6 +47,34 @@ class Image
             $image = file_get_contents($image);
         }
         $this->image = imagecreatefromstring($image);
+
+    }
+
+    /**
+     * Returns the image types known to PHP
+     *
+     * @return void
+     */
+    public function getImageTypes() {
+
+        if (empty($this->imageTypes) === false) {
+            return $this->imageTypes;
+        }
+        $const = get_defined_constants(true)['standard'];
+        ksort($const);
+        foreach ($const as $key => $value) {
+            if (strpos($key, "IMAGETYPE") === false) {
+                unset($const[$key]);
+            }
+            else {
+                unset($const[$key]);
+                $key = str_replace("IMAGETYPE_", "", $key);
+                $const[$key] = $value;
+            }
+        }
+        unset($const['COUNT'], $const['UNKNOWN']);
+        $this->imageTypes = $const;
+        return $this->imageTypes;
 
     }
 
@@ -165,6 +203,26 @@ class Image
             return $return;
         }
 
+    }
+
+    /**
+     * This method saves the image to one of the supported filetypes
+     *
+     * @param string $path  The path to save the image to
+     * @param string $fileName The name of the image, including the extention
+     *
+     * @return void
+     */
+    public function saveImage(string $path, string $fileName)
+    {
+        $format = strtolower(array_reverse(explode(".", $fileName))[0]);
+        if (is_dir($path) === false) {
+            mkdir($path, 0777, true);
+        }
+
+        if (isset($this->formats[$format]) === true) {
+            $this->formats[$format]($this->image, $path . $fileName);
+        }
     }
 
     /**
