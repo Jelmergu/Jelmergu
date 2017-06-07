@@ -221,6 +221,8 @@ class Image
         }
 
         if (isset($this->formats[$format]) === true) {
+            imagealphablending($this->image, true);
+            imagesavealpha($this->image, true);
             $this->formats[$format]($this->image, $path . $fileName);
         }
     }
