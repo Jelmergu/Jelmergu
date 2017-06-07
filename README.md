@@ -2,19 +2,21 @@
 [![Coverage Status][coverageStatus]][coverageLink]
 
 [![Latest Stable Version][latestStable]][latestLink]
-[![Total Downloads][downloads]][downloadLink]
+[![Composer Downloads][downloads]][downloadLink]
+
+[![Github contributors][contributors]][contributorsLinks]
 
 WIP
 
 
-[buildLink]:        https://travis-ci.org/Jelmergu/Jelmergu
-[buildstatus]:      https://travis-ci.org/Jelmergu/Jelmergu.svg?branch=develop
-[latestStable]:     https://poser.pugx.org/jelmergu/jelmergu/v/stable
-[latestLink]:       https://packagist.org/packages/jelmergu/jelmergu
-[downloads]:        https://poser.pugx.org/jelmergu/jelmergu/downloads
-[downloadLink]:     https://packagist.org/packages/jelmergu/jelmergu
-[coverageStatus]:   https://coveralls.io/repos/github/Jelmergu/Jelmergu/badge.svg?branch=develop
-[coverageLink]:     https://coveralls.io/github/Jelmergu/Jelmergu?branch=develop
-
-
-
+[buildstatus]:          https://img.shields.io/travis/Jelmergu/Jelmergu/develop.svg
+[latestStable]:         https://img.shields.io/packagist/v/jelmergu/jelmergu.svg?label=Latest
+[downloads]:            https://img.shields.io/packagist/dt/jelmergu/jelmergu.svg?label=Composer+downloads
+[coverageStatus]:       https://img.shields.io/coveralls/Jelmergu/Jelmergu/develop.svg
+[contributors]:         https://img.shields.io/github/contributors/jelmergu/jelmergu.svg?label=Github+contributors
+    
+[buildLink]:            https://travis-ci.org/Jelmergu/Jelmergu
+[latestLink]:           https://packagist.org/packages/jelmergu/jelmergu
+[downloadLink]:         https://packagist.org/packages/jelmergu/jelmergu
+[coverageLink]:         https://coveralls.io/github/Jelmergu/Jelmergu?branch=develop
+[contributorsLinks]:    https://github.com/Jelmergu/Jelmergu/graphs/contributors
