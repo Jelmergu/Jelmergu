@@ -12,11 +12,13 @@
 # Don't ignore some extentions
 #
 !*.php
-
 #
 # Don't ignore some files
 #
 !composer.*
 !.gitignore
 !phpunit.xml.dist
+!.coveralls.yml
 !.travis.yml
+!README.md
+!LICENSE
