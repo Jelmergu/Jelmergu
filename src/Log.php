@@ -9,7 +9,6 @@
 
 namespace Jelmergu;
 
-use Jelmergu\Exceptions\InvalidFileSystemRights;
 
 class Log
 {
@@ -28,9 +27,7 @@ class Log
                 $newPath .= $sPWD . DIRECTORY_SEPARATOR;
             }
         }
-        if (is_writable($newPath) === FALSE) {
-            throw new InvalidFileSystemRights(222, $newPath);
-        }
+
         self::$logLocation = $newPath;
     }
 
