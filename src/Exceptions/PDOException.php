@@ -29,6 +29,8 @@ class PDOException extends \PDOException
      * @param string         $message
      * @param string|int     $code
      * @param Throwable|NULL $previous
+     *
+     * @throws \ReflectionException
      */
     public function __construct($message = "", $code = 0, Throwable $previous = null)
     {

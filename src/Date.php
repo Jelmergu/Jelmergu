@@ -18,7 +18,6 @@ namespace Jelmergu {
 
     use DateTime;
 
-
     /**
      * The class Date contains additional options for date
      *
@@ -238,6 +237,19 @@ namespace Jelmergu {
         public function between(string $lowerDate, string $upperDate) : bool
         {
             return ($this->getTimestamp() >= strtotime($lowerDate) && $this->getTimestamp() <= strtotime($upperDate));
+        }
+
+        /**
+         * Returns the stored date ready to be used as a SQL timestamp
+         *
+         * @since 1.0.7
+         * @version 1.0
+         *
+         * @return string
+         */
+        public function __toString()
+        {
+            return $this->format(DATE_MYSQL_TIMESTAMP);
         }
 
     }
