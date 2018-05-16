@@ -323,19 +323,22 @@ class Validator
                 return false;
             }
         }
+        if (preg_match("`\[{1}`", $domain) == 1 && preg_match("`\]{1}`", $domain) == 1) {
 
-        $domainRegex = "`((?<ip>(?<=^\[{1})(?:[0-9.]{1,4}){4}|(?<=^\[IPv6:)(?:[a-f0-9:]{1,5}){1,8})(?=\]{1}$)|^[a-z0-9\.\-]{1,245}$)`i";
-
-        if (preg_match($domainRegex, $domain, $matches) > 0) {
-            if (isset($matches['ip']) === true) {
-                if (filter_var($matches['ip'], FILTER_VALIDATE_IP) === false) {
-                    return false;
+            $domainRegex = "`(?:\[{1})([0-9.]{7,15})(?:\]{1})|(?:\[{1})(?:IPv6:)([0-9a-zA-Z:]{3,24})(?:\]{1})`";
+            if (preg_match($domainRegex, $domain, $matches) > 0) {
+                if (isset($matches[0]) === true) {
+                    if (filter_var($matches[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4|FILTER_FLAG_IPV6) === false) {
+                        return false;
+                    }
                 }
-            }
 
+                return true;
+            }
+        }
+        elseif (preg_match("`^[a-z0-9]{1}[a-z0-9\-.]*[a-z0-9]{1}$`i", $domain) == 1) {
             return true;
         }
-
         return false;
     }
 }
