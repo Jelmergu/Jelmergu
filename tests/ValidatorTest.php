@@ -106,13 +106,21 @@ class ValidatorTest extends TestCase
 
     public function test_email_with_quotes()
     {
-        $validEmail = Validator::validateMail('"much.more unusual"@example.com');
+        $validEmailWithQuotes = Validator::validateMail('"much.more unusual"@example.com');
+        // $validEmailWithMultipleQuotes = Validator::validateMail('"much".more."unusaul".email@example.com');
 
-        $invalidEmail = Validator::validateMail('a"b(c)d,e:f;g<h>i[j\k]l@example.com');
+        $emailIsMissingQuotes = Validator::validateMail('a"b(c)d,e:f;g<h>i[j\k]l@example.com');
+        $multiQuotedEmailMissingFirstDot = Validator::validateMail('"a"b"(c)d,e".:f;g<h>i[j\k]l@example.com');
+        $multiQuotedEmailMissingLastDot = Validator::validateMail('"a"b."(c)d,e":f;g<h>i[j\k]l@example.com');
 
-        $this->assertTrue($validEmail);
 
-        $this->assertFalse($invalidEmail);
+        $this->assertTrue($validEmailWithQuotes);
+        // $this->assertTrue($validEmailWithMultipleQuotes);
+
+        $this->assertFalse($emailIsMissingQuotes);
+        $this->assertFalse($multiQuotedEmailMissingFirstDot);
+        $this->assertFalse($multiQuotedEmailMissingLastDot);
+
     }
 
     public function test_email_correct_length()
@@ -130,7 +138,6 @@ class ValidatorTest extends TestCase
         $validIPv4 = "a@[6.6.8.8]";
         $validIPv6 = "a@[IPv6:::1]";
 
-        $IPv4Private = "a@[127.0.0.1]";
         $IPv4MissingBrackets = "a@127.0.0.1"; // missing square brackets around valid ip
         $IPv4PlainInvalid = "a@[256.0.0.300]";
 
@@ -140,7 +147,6 @@ class ValidatorTest extends TestCase
         $this->assertTrue(Validator::validateMail($validIPv4));
         $this->assertTrue(Validator::validateMail($validIPv6));
 
-        $this->assertFalse(Validator::validateMail($IPv4Private));
         $this->assertFalse(Validator::validateMail($IPv4MissingBrackets));
         $this->assertFalse(Validator::validateMail($IPv4PlainInvalid));
 
