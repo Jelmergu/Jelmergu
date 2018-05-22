@@ -164,7 +164,7 @@ trait Database
      */
     public function execute($statement, array $parameters = [], bool $statementReturn = false)
     {
-        if (!is_string($statement)) {
+        if (is_string($statement)) {
              $statement = $this->prepare($statement);
         }
         if (is_a($statement, PDOStatement::class)) {
