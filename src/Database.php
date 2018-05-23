@@ -56,7 +56,7 @@ trait Database
 
     public $fetchMethod = PDO::FETCH_ASSOC;
 
-    private $noTransactionErrors = true;
+    protected $noTransactionErrors = true;
 
     /**
      * Return a pdo instance
@@ -344,9 +344,9 @@ trait Database
     private function handleError(PDOStatement $statement, array $parameters) : PDOStatement
     {
         $query = $statement->queryString;
-        $this->noTransactionErrors = false;
         // Check if the statement was a success or not
         if ($statement->errorCode() != "00000") {
+            $this->noTransactionErrors = false;
             // Make exception for file and linenumbers
             $e = new PDOException($statement->errorInfo()[2], $statement->errorCode());
 
@@ -425,7 +425,7 @@ trait Database
             if ($key[0] != ":") {
                 $key = ":{$key}";
             }
-            $query = str_replace($key, '"'.$value.'"', $query);
+            $query = str_replace($key, "'".$value."'", $query);
         }
 
         return $query;
