@@ -56,6 +56,8 @@ trait Database
 
     public $fetchMethod = PDO::FETCH_ASSOC;
 
+    protected $noTransactionErrors = true;
+
     /**
      * Return a pdo instance
      *
@@ -75,7 +77,7 @@ trait Database
             }
 
             // Check if the required constants have been set
-            $missingConstant = [];
+            $missingConstant   = [];
             $requiredConstants = ["DB_HOST", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"];
             foreach ($requiredConstants as $constant) {
                 if (defined($constant) === false) {
@@ -85,18 +87,18 @@ trait Database
 
             if (count($missingConstant) === 0) {
                 $extraFields = "";
-                $options = ["charset", "port"];
+                $options     = ["charset", "port"];
 
                 foreach ($options as $option) {
-                    if (defined("DB_" . strtoupper($option)) === true) {
-                        $extraFields .= ";" . $option . "=" . constant("DB_" . strtoupper($option));
+                    if (defined("DB_".strtoupper($option)) === true) {
+                        $extraFields .= ";".$option."=".constant("DB_".strtoupper($option));
                     }
                 }
 
                 self::$db = new PDO(
-                    $type . ":host=" . DB_HOST . ";
-                    dbname=" . DB_NAME
-                    . $extraFields,
+                    $type.":host=".DB_HOST.";
+                    dbname=".DB_NAME
+                    .$extraFields,
                     DB_USERNAME,
                     DB_PASSWORD,
                     self::$PDOOptions
@@ -142,7 +144,8 @@ trait Database
      */
     protected function prepare(string $query) : PDOStatement
     {
-        return $this->getPDO()->prepare($query);
+        return $this->getPDO()
+                    ->prepare($query);
     }
 
     /**
@@ -152,21 +155,30 @@ trait Database
      * @version 1.0
      *
      *
-     * @param PDOStatement $statement       The statement to execute
-     * @param array        $parameters      A list of key => value pairs, where some match the name of the parameters in
-     *                                      the prepared statement. The keys don't need to be prefixed with a :
-     * @param bool         $statementReturn Whether or not the statement should be returned for object chaining
+     * @param PDOStatement|string $statement       The statement to execute
+     * @param array               $parameters      A list of key => value pairs, where some match the name of the parameters in
+     *                                             the prepared statement. The keys don't need to be prefixed with a :
+     * @param bool                $statementReturn Whether or not the statement should be returned for object chaining
      *
      * @return void|PDOStatement
      */
-    public function execute(PDOStatement $statement, array $parameters = [], bool $statementReturn = false)
+    public function execute($statement, array $parameters = [], bool $statementReturn = false)
     {
-        $this->parametrize($statement->queryString, $parameters);
-        $statement->execute($parameters);
-        $this->handleError($statement, $parameters);
+        if (is_string($statement)) {
+             $statement = $this->prepare($statement);
+        }
+        if (is_a($statement, PDOStatement::class)) {
+            $this->parametrize($statement->queryString, $parameters);
+            $statement->execute($parameters);
+            $this->handleError($statement, $parameters);
 
-        if ($statementReturn === true) {
-            return $statement;
+            if ($statementReturn === true) {
+                return $statement;
+            }
+        }
+        else {
+            $this->handleException(new PDOException("\$Statement parameter given to \Jelmergu\Database was of incorrect type"), $statement, $parameters);
+            return null;
         }
     }
 
@@ -209,7 +221,7 @@ trait Database
                     $outputParameters[":{$parameter}"] = $parameters[":{$parameter}"];
                     continue;
                 } elseif (isset($parameters[$parameter]) === true) {
-                    $outputParameters[':' . $parameter] = $parameters[$parameter];
+                    $outputParameters[':'.$parameter] = $parameters[$parameter];
                 } else {
                     $e = new PDOException(
                         "Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'",
@@ -240,13 +252,14 @@ trait Database
     protected function getRows(&$rows = 0, string $query, $parameters = []) : self
     {
         try {
-            $this->result = $this->execute(
+            $this->result      = $this->execute(
                 $statement = $this->prepare($query),
                 $parameters,
                 true
-            )->fetchAll($this->fetchMethod);
+            )
+                                      ->fetchAll($this->fetchMethod);
             $this->fetchMethod = PDO::FETCH_ASSOC;
-            $rows = $statement->rowCount();
+            $rows              = $statement->rowCount();
         } catch (\PDOException $e) {
             $this->handleException($e, $query, $parameters);
         }
@@ -269,11 +282,12 @@ trait Database
     protected function queryData(string $query, $parameters = []) : self
     {
         try {
-            $this->result = $this->execute(
+            $this->result      = $this->execute(
                 $statement = $this->prepare($query),
                 $parameters,
                 true
-            )->fetchAll($this->fetchMethod);
+            )
+                                      ->fetchAll($this->fetchMethod);
             $this->fetchMethod = PDO::FETCH_ASSOC;
 
         } catch (\PDOException $e) {
@@ -299,11 +313,12 @@ trait Database
     protected function queryRow($query, $parameters = []) : self
     {
         try {
-            $this->result = $this->execute(
+            $this->result      = $this->execute(
                 $statement = $this->prepare($query),
                 $parameters,
                 true
-            )->fetch($this->fetchMethod);
+            )
+                                      ->fetch($this->fetchMethod);
             $this->fetchMethod = PDO::FETCH_ASSOC;
 
         } // Handle the possible exception
@@ -331,14 +346,15 @@ trait Database
         $query = $statement->queryString;
         // Check if the statement was a success or not
         if ($statement->errorCode() != "00000") {
+            $this->noTransactionErrors = false;
             // Make exception for file and linenumbers
             $e = new PDOException($statement->errorInfo()[2], $statement->errorCode());
 
             // Output to log
             if (self::$DatabaseOptions["log"] >= 2) {
                 Log::DatabaseLog(
-                    "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}" .
-                    PHP_EOL . "Query: " . $this->fillQuery($query, $parameters));
+                    "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}".
+                    PHP_EOL."Query: ".$this->fillQuery($query, $parameters));
             }
 
             // Output to screen
@@ -376,11 +392,12 @@ trait Database
             $e = new Exceptions\PDOException($e->getMessage(), $e->getCode());
         }
 
+        $this->noTransactionErrors = false;
         // Log the exception if allowed
         if (self::$DatabaseOptions['log'] >= 1) {
             Log::DatabaseLog(
-                "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}" .
-                PHP_EOL . "Query: " . $this->fillQuery($query, $parameters)
+                "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}".
+                PHP_EOL."Query: ".$this->fillQuery($query, $parameters)
             );
         }
         // Throw the exception if allowed
@@ -408,7 +425,7 @@ trait Database
             if ($key[0] != ":") {
                 $key = ":{$key}";
             }
-            $query = str_replace($key, '"' . $value . '"', $query);
+            $query = str_replace($key, "'".$value."'", $query);
         }
 
         return $query;
@@ -424,7 +441,8 @@ trait Database
      */
     protected function getTransaction() : bool
     {
-        return $this->getPDO()->inTransaction();
+        return $this->getPDO()
+                    ->inTransaction();
     }
 
     /**
@@ -438,9 +456,14 @@ trait Database
     protected function transaction()
     {
         if ($this->getTransaction() === false) {
-            $this->getPDO()->beginTransaction();
+            $this->noTransactionErrors = true;
+            $this->getPDO()
+                 ->beginTransaction();
+        } elseif ($this->noTransactionErrors) {
+            $this->getPDO()
+                 ->commit();
         } else {
-            $this->getPDO()->commit();
+            $this->getPDO()->rollBack();
         }
     }
 }

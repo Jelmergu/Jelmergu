@@ -13,6 +13,11 @@ namespace Jelmergu\Exceptions;
 
 use Jelmergu\Log;
 
+/**
+ * This is a wrapper around the native PHP Exception, adding some logging capabilities
+ *
+ * @package Jelmergu\Exceptions
+ */
 abstract class Exception extends \Exception
 {
 

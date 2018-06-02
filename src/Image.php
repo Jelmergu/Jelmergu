@@ -19,17 +19,13 @@ namespace Jelmergu;
  */
 class Image
 {
-    private $image;
-    public $imageTypes  = [];
-    private $formats = [
+    protected $image;
+    protected static $imageTypes  = [];
+    protected $formats = [
         "png"  => "imagepng",
         "gif"  => "imagegif",
         "jpeg" => "imagejpeg",
         "jpg"  => "imagejpeg",
-        "wbmp" => "image2wbmp",
-        "bmp"  => "imagebmp",
-        "webp" => "imagewebp",
-        "xbm"  => "imagexbm",
     ];
 
     /**
@@ -55,10 +51,10 @@ class Image
      *
      * @return void
      */
-    public function getImageTypes() {
+    public static function getImageTypes() {
 
-        if (empty($this->imageTypes) === false) {
-            return $this->imageTypes;
+        if (empty(self::$imageTypes) === false) {
+            return self::$imageTypes;
         }
         $const = get_defined_constants(true)['standard'];
         ksort($const);
@@ -73,9 +69,8 @@ class Image
             }
         }
         unset($const['COUNT'], $const['UNKNOWN']);
-        $this->imageTypes = $const;
-        return $this->imageTypes;
-
+        self::$imageTypes = $const;
+        return self::$imageTypes;
     }
 
     /**
