@@ -56,6 +56,8 @@ trait Database
 
     public $fetchMethod = PDO::FETCH_ASSOC;
 
+    protected $noTransactionErrors = true;
+
     /**
      * Return a pdo instance
      *
@@ -162,7 +164,7 @@ trait Database
      */
     public function execute($statement, array $parameters = [], bool $statementReturn = false)
     {
-        if (!is_string($statement)) {
+        if (is_string($statement)) {
              $statement = $this->prepare($statement);
         }
         if (is_a($statement, PDOStatement::class)) {
@@ -344,6 +346,7 @@ trait Database
         $query = $statement->queryString;
         // Check if the statement was a success or not
         if ($statement->errorCode() != "00000") {
+            $this->noTransactionErrors = false;
             // Make exception for file and linenumbers
             $e = new PDOException($statement->errorInfo()[2], $statement->errorCode());
 
@@ -389,6 +392,7 @@ trait Database
             $e = new Exceptions\PDOException($e->getMessage(), $e->getCode());
         }
 
+        $this->noTransactionErrors = false;
         // Log the exception if allowed
         if (self::$DatabaseOptions['log'] >= 1) {
             Log::DatabaseLog(
@@ -421,7 +425,7 @@ trait Database
             if ($key[0] != ":") {
                 $key = ":{$key}";
             }
-            $query = str_replace($key, '"'.$value.'"', $query);
+            $query = str_replace($key, "'".$value."'", $query);
         }
 
         return $query;
@@ -452,11 +456,14 @@ trait Database
     protected function transaction()
     {
         if ($this->getTransaction() === false) {
+            $this->noTransactionErrors = true;
             $this->getPDO()
                  ->beginTransaction();
-        } else {
+        } elseif ($this->noTransactionErrors) {
             $this->getPDO()
                  ->commit();
+        } else {
+            $this->getPDO()->rollBack();
         }
     }
 }

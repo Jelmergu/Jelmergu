@@ -218,5 +218,36 @@ class ValidatorTest extends TestCase
         $this->assertTrue($objectIsValidObjectOrArray);
         $this->assertFalse($intIsInvalidObejctOrArray);
     }
+
+    public function test_validate_iban()
+    {
+        $validIBAN       = Validator::validateIBAN("NL20INGB0001234567");
+        $invalidChecksum = Validator::validateIBAN("NL19INGB0001234567");
+
+        $this->assertTrue($validIBAN);
+        $this->assertFalse($invalidChecksum);
+    }
+
+    public function test_validate_number()
+    {
+
+        $validaterObjectUsedByInvokeMethod = new Validator();
+        $validNumberShouldReturnTrue       = $this->invokeMethod($validaterObjectUsedByInvokeMethod, "validateNumber", ["98"]);
+        $invalidNumberNotNumeric           = $this->invokeMethod($validaterObjectUsedByInvokeMethod, "validateNumber", ["abcd"]);
+
+        $this->assertTrue($validNumberShouldReturnTrue);
+        $this->assertFalse($invalidNumberNotNumeric);
+
+    }
+
+    public function invokeMethod(&$object, $methodName, array $parameters = [])
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method     = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
+    }
+
 }
 
