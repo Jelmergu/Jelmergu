@@ -109,9 +109,9 @@ class ValidatorTest extends TestCase
         $validEmailWithQuotes = Validator::validateMail('"much.more unusual"@example.com');
         // $validEmailWithMultipleQuotes = Validator::validateMail('"much".more."unusaul".email@example.com');
 
-        $emailIsMissingQuotes = Validator::validateMail('a"b(c)d,e:f;g<h>i[j\k]l@example.com');
+        $emailIsMissingQuotes            = Validator::validateMail('a"b(c)d,e:f;g<h>i[j\k]l@example.com');
         $multiQuotedEmailMissingFirstDot = Validator::validateMail('"a"b"(c)d,e".:f;g<h>i[j\k]l@example.com');
-        $multiQuotedEmailMissingLastDot = Validator::validateMail('"a"b."(c)d,e":f;g<h>i[j\k]l@example.com');
+        $multiQuotedEmailMissingLastDot  = Validator::validateMail('"a"b."(c)d,e":f;g<h>i[j\k]l@example.com');
 
 
         $this->assertTrue($validEmailWithQuotes);
@@ -125,8 +125,8 @@ class ValidatorTest extends TestCase
 
     public function test_email_correct_length()
     {
-        $domainToLong = "a@abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
-        $localToLong = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz@a.a";
+        $domainToLong     = "a@abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+        $localToLong      = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz@a.a";
         $completelyToLong = "abcdefghijklmnopqrstuvwxyz@abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz.abcdefghijklmnopqrstuvwxyz";
 
         $this->assertFalse(Validator::validateMail($domainToLong));
@@ -134,15 +134,16 @@ class ValidatorTest extends TestCase
         $this->assertFalse(Validator::validateMail($completelyToLong));
     }
 
-    public function test_email_with_ips() {
+    public function test_email_with_ips()
+    {
         $validIPv4 = "a@[6.6.8.8]";
         $validIPv6 = "a@[IPv6:::1]";
 
         $IPv4MissingBrackets = "a@127.0.0.1"; // missing square brackets around valid ip
-        $IPv4PlainInvalid = "a@[256.0.0.300]";
+        $IPv4PlainInvalid    = "a@[256.0.0.300]";
 
         $IPv6PlainInvalid = "a@[IPv6:::1::0]"; // only one instance of :: allowed to replace 0's
-        $IPv6MissingIPv6 = "a@[::1]";
+        $IPv6MissingIPv6  = "a@[::1]";
 
         $this->assertTrue(Validator::validateMail($validIPv4));
         $this->assertTrue(Validator::validateMail($validIPv6));

@@ -27,9 +27,7 @@ class Image
         "jpeg" => "imagejpeg",
         "jpg"  => "imagejpeg",
         "wbmp" => "image2wbmp",
-        "bmp"  => "imagebmp",
         "webp" => "imagewebp",
-        "xbm"  => "imagexbm",
     ];
 
     /**
