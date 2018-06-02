@@ -271,12 +271,14 @@ class Validator
         if (preg_match($quotedStringPart, $local) > 0) {
             return true;
         } elseif (strpos($local, '."') > 0 || strpos($local, '".') > 0) {
+            // ToDo rewrite part for quoted string part, as it does not check all quoted parts in the string
             $localParts = $local;
             if (strpos($local, '."') > 0) {
                 $localParts = explode('."', $local);
                 $preQuote = $localParts[0];
                 $localParts = '"' . $localParts[1];
             }
+
             if (strpos($local, '".') > 0) {
                 $localParts = explode('".', $localParts);
                 $postQuote = $localParts[1];
@@ -323,19 +325,23 @@ class Validator
                 return false;
             }
         }
+        if (preg_match("`\[{1}`", $domain) == 1 && preg_match("`\]{1}`", $domain) == 1) {
 
-        $domainRegex = "`((?<ip>(?<=^\[{1})(?:[0-9.]{1,4}){4}|(?<=^\[IPv6:)(?:[a-f0-9:]{1,5}){1,8})(?=\]{1}$)|^[a-z0-9\.\-]{1,245}$)`i";
-
-        if (preg_match($domainRegex, $domain, $matches) > 0) {
-            if (isset($matches['ip']) === true) {
-                if (filter_var($matches['ip'], FILTER_VALIDATE_IP) === false) {
-                    return false;
+            $domainRegex = "`(?:\[{1})([0-9.]{7,15})(?:\]{1})|(?:\[{1}IPv6\:)([0-9a-zA-Z:]{3,24})(?:\]{1})`";
+            if (preg_match($domainRegex, $domain, $matches) > 0) {
+                $match = $matches[2] ?? $matches[1]?? null;
+                if (is_null($match) === false) {
+                    if (filter_var($match, FILTER_VALIDATE_IP) === false) {
+                        return false;
+                    }
                 }
-            }
 
+                return true;
+            }
+        }
+        elseif (preg_match("`^[a-z0-9]{1}[a-z0-9\-.]*[a-z]{1}$`i", $domain) == 1) {
             return true;
         }
-
         return false;
     }
 
