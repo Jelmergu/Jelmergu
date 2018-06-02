@@ -338,5 +338,68 @@ class Validator
 
         return false;
     }
+
+
+    /**
+     * Determine if the input string can be a valid IBAN number
+     *
+     * @param string $iban The IBAN to check
+     *
+     * @return bool true if the IBAN appears to be valid
+     */
+    public static function validateIBAN(string $iban) : bool {
+
+        $checksum = (int)substr($iban, 2,2);
+        $landCode = substr($iban, 0, 2);
+        $bankCode = substr($iban, 4);
+
+        $landCode = implode(self::getIBANValueLetter(str_split($landCode, 1)));
+        $bankCode = implode(self::getIBANValueLetter(str_split($bankCode, 1)));
+
+        $fullNumber = $bankCode.$landCode.$checksum;
+        return self::validateNumber($fullNumber);
+    }
+
+    /**
+     * Perform a mod 97 on the input number
+     *
+     * @param string $number Any length of number
+     *
+     * @return bool
+     */
+    private static function validateNumber(string $number) {
+        if (!is_numeric($number)) {
+            return false;
+        }
+        $number = str_split($number, 9);
+        if (count($number) > 1) {
+            $number[0] = (int) $number[0] % 97;
+            return self::validateNumber(implode($number));
+        } else {
+            return ((int)$number[0] % 97) == 1 ? true : false;
+        }
+    }
+
+    /**
+     * Convert a letter or array of letters to numbers, leaves numbers as they are
+     *
+     * @param $letter array|string letters to convert
+     *
+     * @return int|array
+     */
+    private static function getIBANValueLetter($letter) {
+        if (is_array($letter)) {
+            foreach ($letter as &$value) {
+                $value = self::getIBANValueLetter($value);
+            }
+            return $letter;
+        }
+
+        if (is_numeric($letter)) {
+            return $letter;
+        }
+
+        return ord(strtolower($letter)) - ord("a") + 10;
+    }
 }
 

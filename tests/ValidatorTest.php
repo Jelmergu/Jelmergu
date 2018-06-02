@@ -18,12 +18,12 @@ class ValidatorTest extends TestCase
 
     public function test_array_contains_test()
     {
-        $items = ['hello', 'world', 'test'];
+        $items        = ['hello', 'world', 'test'];
         $invalidItems = ['invalid', 'abc'];
 
         $key = 'test';
 
-        $arrayContainsKey = Validator::either($key, $items);
+        $arrayContainsKey              = Validator::either($key, $items);
         $invalidArrayDoesNotContainKey = Validator::either($key, $invalidItems);
 
         $this->assertTrue($arrayContainsKey);
@@ -76,13 +76,42 @@ class ValidatorTest extends TestCase
 
     public function test_email_with_quotes()
     {
-        $validEmail = Validator::validateMail('"much.more unusual"@example.com');
-
+        $validEmail   = Validator::validateMail('"much.more unusual"@example.com');
         $invalidEmail = Validator::validateMail('a"b(c)d,e:f;g<h>i[j\k]l@example.com');
 
         $this->assertTrue($validEmail);
-
         $this->assertFalse($invalidEmail);
     }
+
+    public function test_validate_iban()
+    {
+        $validIBAN       = Validator::validateIBAN("NL20INGB0001234567");
+        $invalidChecksum = Validator::validateIBAN("NL19INGB0001234567");
+
+        $this->assertTrue($validIBAN);
+        $this->assertFalse($invalidChecksum);
+    }
+
+    public function test_validate_number()
+    {
+
+        $validaterObjectUsedByInvokeMethod = new Validator();
+        $validNumberShouldReturnTrue       = $this->invokeMethod($validaterObjectUsedByInvokeMethod, "validateNumber", ["98"]);
+        $invalidNumberNotNumeric           = $this->invokeMethod($validaterObjectUsedByInvokeMethod, "validateNumber", ["abcd"]);
+
+        $this->assertTrue($validNumberShouldReturnTrue);
+        $this->assertFalse($invalidNumberNotNumeric);
+
+    }
+
+    public function invokeMethod(&$object, $methodName, array $parameters = [])
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method     = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
+    }
+
 }
 
