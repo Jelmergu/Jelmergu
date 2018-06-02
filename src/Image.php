@@ -26,8 +26,6 @@ class Image
         "gif"  => "imagegif",
         "jpeg" => "imagejpeg",
         "jpg"  => "imagejpeg",
-        "wbmp" => "image2wbmp",
-        "webp" => "imagewebp",
     ];
 
     /**

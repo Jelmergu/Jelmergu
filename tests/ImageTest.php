@@ -118,8 +118,6 @@ class ImageTest extends TestCase
             'gif'  => 799,
             'jpeg' => 4787,
             'jpg'  => 4787,
-            'wbmp' => 31506,
-            'webp' => 528,
         ];
 
         $this->assertEquals($expectedSizes, $this->image->getSize());
@@ -137,8 +135,6 @@ class ImageTest extends TestCase
                 'gif'  => 799,
                 'jpeg' => 4787,
                 'jpg'  => 4787,
-                'wbmp' => 31506,
-                'webp' => 528,
             ],
         ];
 
