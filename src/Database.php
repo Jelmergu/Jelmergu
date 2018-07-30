@@ -11,6 +11,8 @@
 
 namespace Jelmergu;
 
+use Jelmergu\Exceptions\PDOException;
+
 class Database
 {
 
@@ -496,5 +498,20 @@ class Database
 
             }
         }
+    }
+
+    /**
+     * Get the result of the last query
+     *
+     * @return mixed|void
+     * @throws \ReflectionException TODO find out where this gets thrown
+     * @throws PDOException Throws a PDOException when there is no result in the query
+     */
+    public static function getResult() {
+        if (is_null(self::$result)) {
+            throw new PDOException("No result from query");
+            return;
+        }
+        return self::$result;
     }
 }
