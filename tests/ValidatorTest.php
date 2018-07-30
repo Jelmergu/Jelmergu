@@ -1,4 +1,4 @@
-<?php
+<?php declare (strict_types=1);
 
 use Jelmergu\Validator;
 use PHPUnit\Framework\TestCase;
@@ -231,8 +231,8 @@ class ValidatorTest extends TestCase
 
     public function test_validate_mod97()
     {
-        $validNumberShouldReturnTrue = Validator::validateMod97(98);
-        $invalidNumberNotMod97       = Validator::validateMod97(99);
+        $validNumberShouldReturnTrue = Validator::validateMod97("98");
+        $invalidNumberNotMod97       = Validator::validateMod97("99");
         $inputStringIsNotANumber     = Validator::validateMod97("abc");
 
         $this->assertTrue($validNumberShouldReturnTrue);
@@ -242,8 +242,8 @@ class ValidatorTest extends TestCase
 
     public function test_validate_luhn_mod10()
     {
-        $validNumberShouldReturnTrue    = Validator::validateLuhnMod10(18);
-        $invalidNumberShouldReturnFalse = Validator::validateLuhnMod10(11);
+        $validNumberShouldReturnTrue    = Validator::validateLuhnMod10("18");
+        $invalidNumberShouldReturnFalse = Validator::validateLuhnMod10("11");
 
         $inputStringIsNotANumber = Validator::validateLuhnMod10("abc");
 

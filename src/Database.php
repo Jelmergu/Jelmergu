@@ -12,6 +12,8 @@
 namespace Jelmergu;
 
 use Jelmergu\Exceptions\PDOException;
+use \PDO as PDO;
+use \PDOStatement as PDOStatement;
 
 class Database
 {
@@ -155,7 +157,7 @@ class Database
      *
      * @since   1.0.6
      * @version 2.0
-     * @throws \PDOException
+     * @throws PDOException
      *
      * @param string $query      The query to extract the parameters from
      * @param array  $parameters A list of parameters that might or might not be needed by the query
@@ -191,7 +193,6 @@ class Database
      *
      * @since   1.0.4
      * @version 2.0
-     * @throws ConstantsNotSetException
      *
      * @param int    $rows       The reference to the variable that will contain the amount of rows
      * @param string $query      The query to execute
@@ -225,7 +226,6 @@ class Database
      *
      * @since   1.0.4
      * @version 2.0
-     * @throws ConstantsNotSetException
      *
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
@@ -255,7 +255,6 @@ class Database
      *
      * @since   1.0.4
      * @version 2.0
-     * @throws ConstantsNotSetException
      *
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
