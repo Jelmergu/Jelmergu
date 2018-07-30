@@ -1,17 +1,17 @@
 <?php
 /**
  * @author    Jelmer Wijnja <info@jelmerwijnja.nl>
- * @copyright jelmerwijnja.nl
  * @since     0.1
  * @version   1.0.1
  *
  * @package   Jelmergu/Jelmergu
  */
+
 namespace {
 
-    const DATE_MYSQL_DATE = "Y-m-d";
+    const DATE_MYSQL_DATE      = "Y-m-d";
     const DATE_MYSQL_TIMESTAMP = "Y-m-d H:i:s";
-    const DATE_MYSQL_TIME = "H:i:s";
+    const DATE_MYSQL_TIME      = "H:i:s";
 }
 
 namespace Jelmergu {
@@ -36,20 +36,23 @@ namespace Jelmergu {
         public function __construct($time = 'now', DateTimeZone $timezone = null)
         {
             if ($time == 'now') {
-                $time = date("Y-m-d H:i:s") . "." . explode(".", microtime(true))[1];
+                $time = date("Y-m-d H:i:s").".".explode(".", microtime(true))[1];
+            } elseif (is_numeric($time)) {
+                $mtime = is_float($time) ? explode(".", $time)[1] : 0;
+                $time  = date("Y-m-d H:i:s", $time).".".$mtime;
             }
             parent::__construct($time, $timezone);
         }
 
         /**
-         * Changes the date(m) value to the dutch version of date(F)
+         * Changes the date value to the dutch version of date
          *
          * @since   1.0
          * @version 1.0
          *
-         * @param  string $month Numeric representation of a month, with leading zeros as returned by date(m)
+         * @param  string $month Numeric representation of a month, with leading zeros as returned by date
          *
-         * @return string  A full textual representation of a month in the dutch language similar to date(F)
+         * @return string A full textual representation of a month in the dutch language similar to date
          */
         public function monthToString(string $month) : string
         {
@@ -85,7 +88,7 @@ namespace Jelmergu {
         }
 
         /**
-         * Returns the date in 'yyyy-mm-dd' format
+         * Returns the date in yyyy-mm-dd format
          *
          * @since   1.0.6
          * @version 1.0
@@ -104,6 +107,7 @@ namespace Jelmergu {
          * @version 1.0
          *
          * @param int $years The years to add or subtract. Subtraction is specified with a minus
+         * @throws \Exception
          *
          * @return Date
          */
@@ -113,7 +117,7 @@ namespace Jelmergu {
             if ($years < 0) {
                 $method = "sub";
             }
-            $this->$method(new \DateInterval("P" . sqrt(pow($years, 2)) . "Y"));
+            $this->$method(new \DateInterval("P".sqrt(pow($years, 2))."Y"));
 
             return $this;
         }
@@ -125,6 +129,7 @@ namespace Jelmergu {
          * @version 1.0
          *
          * @param int $months The months to add or subtract. Subtraction is specified with a minus
+         * @throws \Exception
          *
          * @return Date
          */
@@ -134,7 +139,7 @@ namespace Jelmergu {
             if ($months < 0) {
                 $method = "sub";
             }
-            $this->$method(new \DateInterval("P" . sqrt(pow($months, 2)) . "M"));
+            $this->$method(new \DateInterval("P".sqrt(pow($months, 2))."M"));
 
             return $this;
         }
@@ -146,6 +151,7 @@ namespace Jelmergu {
          * @version 1.0
          *
          * @param int $days The days to add or subtract. Subtraction is specified with a minus
+         * @throws \Exception
          *
          * @return Date
          */
@@ -155,7 +161,7 @@ namespace Jelmergu {
             if ($days < 0) {
                 $method = "sub";
             }
-            $this->$method(new \DateInterval("P" . sqrt(pow($days, 2)) . "D"));
+            $this->$method(new \DateInterval("P".sqrt(pow($days, 2))."D"));
 
             return $this;
         }
@@ -167,6 +173,7 @@ namespace Jelmergu {
          * @version 1.0
          *
          * @param int $hours The hours to add or subtract. Subtraction is specified with a minus
+         * @throws \Exception
          *
          * @return Date
          */
@@ -176,7 +183,7 @@ namespace Jelmergu {
             if ($hours < 0) {
                 $method = "sub";
             }
-            $this->$method(new \DateInterval("PT" . sqrt(pow($hours, 2)) . "H"));
+            $this->$method(new \DateInterval("PT".sqrt(pow($hours, 2))."H"));
 
             return $this;
         }
@@ -188,6 +195,7 @@ namespace Jelmergu {
          * @version 1.0
          *
          * @param int $minutes The minutes to add or subtract. Subtraction is specified with a minus
+         * @throws \Exception
          *
          * @return Date
          */
@@ -197,7 +205,7 @@ namespace Jelmergu {
             if ($minutes < 0) {
                 $method = "sub";
             }
-            $this->$method(new \DateInterval("PT" . sqrt(pow($minutes, 2)) . "M"));
+            $this->$method(new \DateInterval("PT".sqrt(pow($minutes, 2))."M"));
 
             return $this;
         }
@@ -209,6 +217,7 @@ namespace Jelmergu {
          * @version 1.0
          *
          * @param int $seconds The seconds to add or subtract. Subtraction is specified with a minus
+         * @throws \Exception
          *
          * @return Date
          */
@@ -218,7 +227,7 @@ namespace Jelmergu {
             if ($seconds < 0) {
                 $method = "sub";
             }
-            $this->$method(new \DateInterval("PT" . sqrt(pow($seconds, 2)) . "S"));
+            $this->$method(new \DateInterval("PT".sqrt(pow($seconds, 2))."S"));
 
             return $this;
         }
@@ -242,7 +251,7 @@ namespace Jelmergu {
         /**
          * Returns the stored date ready to be used as a SQL timestamp
          *
-         * @since 1.0.7
+         * @since   1.0.7
          * @version 1.0
          *
          * @return string

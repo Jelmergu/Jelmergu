@@ -229,16 +229,42 @@ class ValidatorTest extends TestCase
         $this->assertFalse($invalidChecksum);
     }
 
-    public function test_validate_number()
+    public function test_validate_mod97()
     {
-
-        $validaterObjectUsedByInvokeMethod = new Validator();
-        $validNumberShouldReturnTrue       = $this->invokeMethod($validaterObjectUsedByInvokeMethod, "validateNumber", ["98"]);
-        $invalidNumberNotNumeric           = $this->invokeMethod($validaterObjectUsedByInvokeMethod, "validateNumber", ["abcd"]);
+        $validNumberShouldReturnTrue = Validator::validateMod97(98);
+        $invalidNumberNotMod97       = Validator::validateMod97(99);
+        $inputStringIsNotANumber     = Validator::validateMod97("abc");
 
         $this->assertTrue($validNumberShouldReturnTrue);
-        $this->assertFalse($invalidNumberNotNumeric);
+        $this->assertFalse($invalidNumberNotMod97);
+        $this->assertFalse($inputStringIsNotANumber);
+    }
 
+    public function test_validate_luhn_mod10()
+    {
+        $validNumberShouldReturnTrue    = Validator::validateLuhnMod10(18);
+        $invalidNumberShouldReturnFalse = Validator::validateLuhnMod10(11);
+
+        $inputStringIsNotANumber = Validator::validateLuhnMod10("abc");
+
+        $this->assertTrue($validNumberShouldReturnTrue);
+        $this->assertFalse($invalidNumberShouldReturnFalse);
+        $this->assertFalse($inputStringIsNotANumber);
+    }
+
+    public function test_validate_creditcardnumber()
+    {
+        $validCreditcardNumber   = Validator::validateCreditcardNumber("5209530664489287");
+        $invalidCreditcardNumber = Validator::validateCreditcardNumber("5209530664489288");
+
+        $creditcardNumberToLong  = Validator::validateCreditcardNumber("52095306644892888888");
+        $creditcardNumberToShort = Validator::validateCreditcardNumber("5209");
+
+        $this->assertTrue($validCreditcardNumber);
+
+        $this->assertFalse($invalidCreditcardNumber);
+        $this->assertFalse($creditcardNumberToLong);
+        $this->assertFalse($creditcardNumberToShort);
     }
 
     public function invokeMethod(&$object, $methodName, array $parameters = [])

@@ -5,7 +5,6 @@
 # Don't ignore some folders
 #
 !src
-!Exceptions
 !tests
 
 #
