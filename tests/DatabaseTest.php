@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 
 class DatabaseTest extends TestCase
 {
+
+
     /**
      * @dataProvider parameterizeProvider
      *
@@ -26,6 +28,7 @@ class DatabaseTest extends TestCase
         return [
                 ["SELECT * FROM test WHERE a = :a", [":a" => "hello"]],
                 ["SELECT * FROM test WHERE a = :b", [":b" => "world"]],
+                ["SELECT * FROM test WHERE a = :c", []],
             ];
     }
 

@@ -5,6 +5,23 @@ use PHPUnit\Framework\TestCase;
 
 class DateTest extends TestCase
 {
+    /**
+     * @dataProvider constructor_provider
+     */
+    public function test_date_constructor($argument, $result) {
+        $date = new Date($argument);
+
+        $this->assertEquals($result, $date->format(DATE_MYSQL_TIMESTAMP. ".u"));
+    }
+
+    public function constructor_provider() : array {
+        return [
+            ["2017-02-09", "2017-02-09 00:00:00.000000"],
+            ["2017-02-09 00:00:00.1", "2017-02-09 00:00:00.100000"],
+            [1486598400, "2017-02-09 00:00:00.000000"]
+        ];
+    }
+
     public function test_second_month_returns_february()
     {
         $month = (new Date())->monthToString('02');
@@ -23,63 +40,51 @@ class DateTest extends TestCase
         $this->assertFalse($afterrange);
     }
 
-    public function test_add_year()
+    public function methodProvider()
     {
-
-        $oneMoreYear  = (new Date("2017-01-01"))->addYears(1)->format("Y-m-d H:i:s");
-        $oneLessYear  = (new Date("2017-01-01"))->addYears(-1)->format("Y-m-d H:i:s");
-        $tenMoreYears = (new Date("2017-01-01"))->addYears(10)->format("Y-m-d H:i:s");
-        $tenLessYears = (new Date("2017-01-01"))->addYears(-10)->format("Y-m-d H:i:s");
-
-        $this->assertEquals("2018-01-01 00:00:00", $oneMoreYear);
-        $this->assertEquals("2016-01-01 00:00:00", $oneLessYear);
-        $this->assertEquals("2027-01-01 00:00:00", $tenMoreYears);
-        $this->assertEquals("2007-01-01 00:00:00", $tenLessYears);
+        return [
+            [
+                "2017-01-01",
+                +1,
+                [
+                    "year"   => "2018-01-01 00:00:00",
+                    "month"  => "2017-02-01 00:00:00",
+                    "day"    => "2017-01-02 00:00:00",
+                    "hour"   => "2017-01-01 01:00:00",
+                    "minute" => "2017-01-01 00:01:00",
+                    "second" => "2017-01-01 00:00:01",
+                ],
+            ],
+            [
+                "2017-01-01",
+                -1,
+                [
+                    "year"   => "2016-01-01 00:00:00",
+                    "month"  => "2016-12-01 00:00:00",
+                    "day"    => "2016-12-31 00:00:00",
+                    "hour"   => "2016-12-31 23:00:00",
+                    "minute" => "2016-12-31 23:59:00",
+                    "second" => "2016-12-31 23:59:59",
+                ],
+            ],
+        ];
     }
 
-    public function test_add_months()
+    /**
+     * @dataProvider methodProvider
+     */
+    public function test_multiple_methods_with_provider($start, $change, array $results)
     {
-        $oneMoreMonth = (new Date("2017-01-01"))->addMonths(1)->format("Y-m-d H:i:s");
-        $oneLessMonth = (new Date("2017-01-01"))->addMonths(-1)->format("Y-m-d H:i:s");
+        $year   = (new Date($start))->addYears($change)->format(DATE_MYSQL_TIMESTAMP);
+        $month  = (new Date($start))->addMonths($change)->format(DATE_MYSQL_TIMESTAMP);
+        $day    = (new Date($start))->addDays($change)->format(DATE_MYSQL_TIMESTAMP);
+        $hour   = (new Date($start))->addHours($change)->format(DATE_MYSQL_TIMESTAMP);
+        $minute = (new Date($start))->addMinutes($change)->format(DATE_MYSQL_TIMESTAMP);
+        $second = (new Date($start))->addSeconds($change)->format(DATE_MYSQL_TIMESTAMP);
 
-        $this->assertEquals("2017-02-01 00:00:00", $oneMoreMonth);
-        $this->assertEquals("2016-12-01 00:00:00", $oneLessMonth);
-    }
-
-    public function test_add_days()
-    {
-        $oneMoreDay = (new Date("2017-01-01"))->addDays(1)->format("Y-m-d H:i:s");
-        $oneLessDay = (new Date("2017-01-01"))->addDays(-1)->format("Y-m-d H:i:s");
-
-        $this->assertEquals("2017-01-02 00:00:00", $oneMoreDay);
-        $this->assertEquals("2016-12-31 00:00:00", $oneLessDay);
-    }
-
-    public function test_add_hours()
-    {
-        $oneMoreHour = (new Date("2017-01-01"))->addHours(1)->format("Y-m-d H:i:s");
-        $oneLessHour = (new Date("2017-01-01"))->addHours(-1)->format("Y-m-d H:i:s");
-
-        $this->assertEquals("2017-01-01 01:00:00", $oneMoreHour);
-        $this->assertEquals("2016-12-31 23:00:00", $oneLessHour);
-    }
-
-    public function test_add_minutes()
-    {
-        $oneMoreMinute = (new Date("2017-01-01"))->addMinutes(1)->format("Y-m-d H:i:s");
-        $oneLessMinute = (new Date("2017-01-01"))->addMinutes(-1)->format("Y-m-d H:i:s");
-
-        $this->assertEquals("2017-01-01 00:01:00", $oneMoreMinute);
-        $this->assertEquals("2016-12-31 23:59:00", $oneLessMinute);
-    }
-
-    public function test_add_seconds()
-    {
-        $oneMoreSecond = (new Date("2017-01-01"))->addSeconds(1)->format("Y-m-d H:i:s");
-        $oneLessSecond = (new Date("2017-01-01"))->addSeconds(-1)->format("Y-m-d H:i:s");
-
-        $this->assertEquals("2017-01-01 00:00:01", $oneMoreSecond);
-        $this->assertEquals("2016-12-31 23:59:59", $oneLessSecond);
+        foreach ($results as $key => $result) {
+            $this->assertEquals($result, $$key);
+        }
     }
 
     public function test_date_format_constants()
