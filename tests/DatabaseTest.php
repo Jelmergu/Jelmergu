@@ -3,10 +3,16 @@
 
 use Jelmergu\Database;
 use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStreamWrapper;
 
 class DatabaseTest extends TestCase
 {
 
+    public function setUp() {
+        Database::$DatabaseOptions['log'] = 0;
+
+    }
 
     /**
      * @dataProvider parameterizeProvider
@@ -19,6 +25,7 @@ class DatabaseTest extends TestCase
             ":b" => "world",
         ];
 
+
         Database::parametrize($query, $parameters);
 
         $this->assertEquals($result, $parameters);
@@ -28,7 +35,7 @@ class DatabaseTest extends TestCase
         return [
                 ["SELECT * FROM test WHERE a = :a", [":a" => "hello"]],
                 ["SELECT * FROM test WHERE a = :b", [":b" => "world"]],
-                ["SELECT * FROM test WHERE a = :c", []],
+                ["SELECT * FROM test WHERE a = :b", []],
             ];
     }
 
