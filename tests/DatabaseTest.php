@@ -35,7 +35,7 @@ class DatabaseTest extends TestCase
         return [
                 ["SELECT * FROM test WHERE a = :a", [":a" => "hello"]],
                 ["SELECT * FROM test WHERE a = :b", [":b" => "world"]],
-                ["SELECT * FROM test WHERE a = :b", []],
+                ["SELECT * FROM test WHERE a = :c", []],
             ];
     }
 
