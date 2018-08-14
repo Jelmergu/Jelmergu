@@ -74,7 +74,7 @@ class Database
      */
     public static function execute($statement, array $parameters = [], bool $statementReturn = false)
     {
-        if (is_string($statement)) {
+        if (\is_string($statement)) {
             $statement = self::prepare($statement);
         }
         if (is_a($statement, PDOStatement::class)) {
@@ -126,7 +126,7 @@ class Database
     public static function fillQuery(string $query, array $parameters) : string
     {
         foreach ($parameters as $key => $value) {
-            if ($key[0] != ":") {
+            if ($key[0] != ':') {
                 $key = ":{$key}";
             }
             $query = str_replace($key, "'".$value."'", $query);
@@ -166,7 +166,7 @@ class Database
      */
     public static function parametrize(string $query, array &$parameters) : self
     {
-        if (count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== false) {
+        if (\count($parameters) > 0 && preg_match_all("`:([a-zA-Z0-9_]{1,})`", $query, $matches) !== false) {
             $outputParameters = [];
             foreach ($matches[1] as $key => $parameter) {
                 if (isset($parameters[$matches[0][$key]]) === true) {
@@ -177,7 +177,7 @@ class Database
                 } else {
                     $e = new PDOException(
                         "Invalid parameter number: number of bound variables does not match number of tokens. Missing parameter '{$parameter}'",
-                        "HY093");
+                        'HY093');
                     self::handleException($e, $query, $parameters);
                 }
             }
@@ -200,7 +200,7 @@ class Database
      *
      * @return Database
      */
-    public static function getRows(&$rows = 0, string $query, $parameters = []) : self
+    public static function getRows(&$rows = 0, string $query, array $parameters = []) : self
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -232,7 +232,7 @@ class Database
      *
      * @return Database
      */
-    public static function queryData(string $query, $parameters = []) : self
+    public static function queryData(string $query, array $parameters = []) : self
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -261,7 +261,7 @@ class Database
      *
      * @return Database
      */
-    public static function queryRow($query, $parameters = []) : self
+    public static function queryRow($query, array $parameters = []) : self
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -397,20 +397,20 @@ class Database
      *
      * @return string
      */
-    private static function prepareSettingsString()
+    private static function prepareSettingsString() : string
     {
-        $type = defined("DB_TYPE") ? DB_TYPE : "mysql";
+        $type = \defined("DB_TYPE") ? DB_TYPE : "mysql";
 
-        $extraFields = "";
-        $options     = ["charset", "port"];
+        $extraFields = '';
+        $options     = ['charset', 'port'];
 
         foreach ($options as $option) {
-            if (defined("DB_".strtoupper($option)) === true) {
-                $extraFields .= ";".$option."=".constant("DB_".strtoupper($option));
+            if (\defined('DB_'.strtoupper($option)) === true) {
+                $extraFields .= ';'.$option.'='.\constant('DB_'.strtoupper($option));
             }
         }
 
-        return $type.":host=".DB_HOST.";dbname=".DB_NAME.$extraFields;
+        return $type.':host='.DB_HOST.';dbname='.DB_NAME.$extraFields;
     }
 
     /**
@@ -429,20 +429,20 @@ class Database
     {
         $query = $statement->queryString;
         // Check if the statement was a success or not
-        if ($statement->errorCode() != "00000") {
+        if ($statement->errorCode() != '00000') {
             self::$noTransactionErrors = false;
             // Make exception for file and linenumbers
             $e = new PDOException($statement->errorInfo()[2], $statement->errorCode());
 
             // Output to log
-            if (self::$DatabaseOptions["log"] >= 2) {
-                Log::DatabaseLog(
+            if (self::$DatabaseOptions['log'] >= 2) {
+                Log::databaseLog(
                     "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}".
-                    PHP_EOL."Query: ".self::fillQuery($query, $parameters));
+                    PHP_EOL.'Query: '.self::fillQuery($query, $parameters));
             }
 
             // Output to screen
-            if (self::$DatabaseOptions["debug"] >= 2) {
+            if (self::$DatabaseOptions['debug'] >= 2) {
                 var_dump($e->getMessage());
                 var_dump("{$e->getFile()} at {$e->getLine()}");
             }
@@ -472,7 +472,7 @@ class Database
          * Note: somehow the exception created in Database::parametrize gets here as a \PDOException
          *  instead of a Exception\PDOException
          */
-        if (get_parent_class($e) == "RuntimeException") {
+        if (get_parent_class($e) === 'RuntimeException') {
             try {
                 $e = new Exceptions\PDOException($e->getMessage(), $e->getCode());
             } catch (ReflectionException $e) {
@@ -486,7 +486,7 @@ class Database
         if (self::$DatabaseOptions['log'] >= 1) {
             Log::databaseLog(
                 "{$e->getCode()}: {$e->getMessage()} in {$e->getFile()} at line {$e->getLine()}".
-                PHP_EOL."Query: ".self::fillQuery($query, $parameters)
+                PHP_EOL.'Query: '.self::fillQuery($query, $parameters)
             );
         }
         // Throw the exception if allowed
@@ -507,8 +507,8 @@ class Database
      * @throws PDOException Throws a PDOException when there is no result in the query
      */
     public static function getResult() {
-        if (is_null(self::$result)) {
-            throw new PDOException("No result from query");
+        if (self::$result === null) {
+            throw new PDOException('No result from query');
             return;
         }
         return self::$result;
