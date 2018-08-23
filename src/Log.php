@@ -28,9 +28,9 @@ class Log
     public static function setLogLocation(string $path)
     {
         $aPWD = preg_split("`/|\\\`", $path);
-        $newPath = "";
+        $newPath = '';
         foreach ($aPWD as $sPWD) {
-            if (strlen($sPWD) > 0) {
+            if ($newPath === '' || \strlen($sPWD) > 0 ) {
                 $newPath .= $sPWD . DIRECTORY_SEPARATOR;
             }
         }

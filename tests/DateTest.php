@@ -11,15 +11,20 @@ class DateTest extends TestCase
     public function test_date_constructor($argument, $result) {
         $date = new Date($argument);
 
-        $this->assertEquals($result, $date->format(DATE_MYSQL_TIMESTAMP. ".u"));
+        $this->assertEquals($result, $date->format(DATE_MYSQL_TIMESTAMP. '.u'));
     }
 
     public function constructor_provider() : array {
         return [
-            ["2017-02-09", "2017-02-09 00:00:00.000000"],
-            ["2017-02-09 00:00:00.1", "2017-02-09 00:00:00.100000"],
-            [1486598400, "2017-02-09 00:00:00.000000"]
+            ['2017-02-09', '2017-02-09 00:00:00.000000'],
+            ['2017-02-09 00:00:00.1', '2017-02-09 00:00:00.100000'],
         ];
+    }
+
+    public function test_constructor_with_numeric_time() {
+        $date = new Date(1486598400);
+
+        $this->assertEquals('2017-02-09 00:00:00.000000', $date->format(DATE_MYSQL_TIMESTAMP. '.u'));
     }
 
     public function test_second_month_returns_february()
@@ -31,40 +36,40 @@ class DateTest extends TestCase
 
     public function test_date_in_range()
     {
-        $inrange     = (new Date("2017-02-09"))->between('2017-02-08', "2017-02-10");
-        $beforerange = (new Date("2017-02-09"))->between('2017-02-06', "2017-02-08");
-        $afterrange  = (new Date("2017-02-09"))->between('2017-02-12', "2017-02-10");
+        $inrange     = (new Date('2017-02-09'))->between('2017-02-08', '2017-02-10');
+        $beforerange = (new Date('2017-02-09'))->between('2017-02-06', '2017-02-08');
+        $afterrange  = (new Date('2017-02-09'))->between('2017-02-12', '2017-02-10');
 
         $this->assertTrue($inrange);
         $this->assertFalse($beforerange);
         $this->assertFalse($afterrange);
     }
 
-    public function methodProvider()
+    public function methodProvider() : array
     {
         return [
             [
-                "2017-01-01",
+                '2017-01-01',
                 +1,
                 [
-                    "year"   => "2018-01-01 00:00:00",
-                    "month"  => "2017-02-01 00:00:00",
-                    "day"    => "2017-01-02 00:00:00",
-                    "hour"   => "2017-01-01 01:00:00",
-                    "minute" => "2017-01-01 00:01:00",
-                    "second" => "2017-01-01 00:00:01",
+                    'year'   => '2018-01-01 00:00:00',
+                    'month'  => '2017-02-01 00:00:00',
+                    'day'    => '2017-01-02 00:00:00',
+                    'hour'   => '2017-01-01 01:00:00',
+                    'minute' => '2017-01-01 00:01:00',
+                    'second' => '2017-01-01 00:00:01',
                 ],
             ],
             [
-                "2017-01-01",
+                '2017-01-01',
                 -1,
                 [
-                    "year"   => "2016-01-01 00:00:00",
-                    "month"  => "2016-12-01 00:00:00",
-                    "day"    => "2016-12-31 00:00:00",
-                    "hour"   => "2016-12-31 23:00:00",
-                    "minute" => "2016-12-31 23:59:00",
-                    "second" => "2016-12-31 23:59:59",
+                    'year'   => '2016-01-01 00:00:00',
+                    'month'  => '2016-12-01 00:00:00',
+                    'day'    => '2016-12-31 00:00:00',
+                    'hour'   => '2016-12-31 23:00:00',
+                    'minute' => '2016-12-31 23:59:00',
+                    'second' => '2016-12-31 23:59:59',
                 ],
             ],
         ];
@@ -89,28 +94,28 @@ class DateTest extends TestCase
 
     public function test_date_format_constants()
     {
-        $date = new Date("2017-01-01 00:00:00");
+        $date = new Date('2017-01-01 00:00:00');
 
-        $this->assertEquals("2017-01-01", $date->format(DATE_MYSQL_DATE));
-        $this->assertEquals("2017-01-01", $date->getDate());
+        $this->assertEquals('2017-01-01', $date->format(DATE_MYSQL_DATE));
+        $this->assertEquals('2017-01-01', $date->getDate());
 
-        $this->assertEquals("00:00:00", $date->format(DATE_MYSQL_TIME));
-        $this->assertEquals("00:00:00", $date->getTime());
+        $this->assertEquals('00:00:00', $date->format(DATE_MYSQL_TIME));
+        $this->assertEquals('00:00:00', $date->getTime());
 
-        $this->assertEquals("2017-01-01 00:00:00", $date->format(DATE_MYSQL_TIMESTAMP));
+        $this->assertEquals('2017-01-01 00:00:00', $date->format(DATE_MYSQL_TIMESTAMP));
     }
 
     public function test_date_toString()
     {
-        $date = new Date("2017-01-01 00:00:00");
+        $date = new Date('2017-01-01 00:00:00');
 
-        $this->assertEquals("2017-01-01 00:00:00", (string)$date);
+        $this->assertEquals('2017-01-01 00:00:00', (string)$date);
     }
 
     public function test_date_constants()
     {
-        $this->assertEquals("Y-m-d", DATE_MYSQL_DATE);
-        $this->assertEquals("H:i:s", DATE_MYSQL_TIME);
-        $this->assertEquals("Y-m-d H:i:s", DATE_MYSQL_TIMESTAMP);
+        $this->assertEquals('Y-m-d', DATE_MYSQL_DATE);
+        $this->assertEquals('H:i:s', DATE_MYSQL_TIME);
+        $this->assertEquals('Y-m-d H:i:s', DATE_MYSQL_TIMESTAMP);
     }
 }
