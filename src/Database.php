@@ -59,7 +59,8 @@ class Database
     }
 
     /**
-     * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
+     * This method prepares the parameters for a prepared statement, executes the statement and handles some errors.
+     * The method is intended to be used for statements that don't expect a result(DELETE, INSERT, UPDATE)
      *
      * @since   1.0.6
      * @version 2.0
@@ -200,7 +201,7 @@ class Database
      *
      * @return Database
      */
-    public static function getRows(&$rows = 0, string $query, array $parameters = []) : self
+    public static function getRows(&$rows, string $query, array $parameters = []) : self
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -232,7 +233,7 @@ class Database
      *
      * @return Database
      */
-    public static function queryData(string $query, array $parameters = []) : self
+    public static function queryData(string $query, array $parameters = []) : Database
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -247,7 +248,7 @@ class Database
             self::handleException($e, $query, $parameters);
         }
 
-        return new self();
+        return new Database();
     }
 
     /**
@@ -506,7 +507,7 @@ class Database
      * @throws \ReflectionException TODO find out where this gets thrown
      * @throws PDOException Throws a PDOException when there is no result in the query
      */
-    public static function getResult() {
+    public function getResult() {
         if (self::$result === null) {
             throw new PDOException('No result from query');
             return;

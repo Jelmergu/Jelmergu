@@ -139,24 +139,24 @@ class Validator
      * @version 1.0.1
      * @since   1.0
      *
-     * @param array $fields
-     * @param array $indices
+     * @param array $haystack
+     * @param array $needles
      *
      * @return bool
      */
-    public static function areMixed(array $fields, array $indices) : bool
+    public static function areMixed(array $haystack, array $needles) : bool
     {
-        foreach ($indices as $key => $value) {
-            if (isset($fields[$key]) === false) {
+        foreach ($needles as $key => $value) {
+            if (isset($haystack[$key]) === false) {
                 return false;
-            } elseif (isset($fields[$value]) === false) {
+            } elseif (isset($haystack[$value]) === false) {
                 /*
                  * Check for $fields[$value] is to make it possible to do something like
                  *   Validator::areMixed($fields, [0, 1 => Validator::NOT_EMPTY]);
                  */
-                if ($value != self::EMPTY && $fields[$key] == "") {
+                if ($value != self::EMPTY && $haystack[$key] == "") {
                     return false;
-                } elseif (self::is($fields[$key], $value) === false) {
+                } elseif (self::is($haystack[$key], $value) === false) {
                     return false;
                 }
             }
