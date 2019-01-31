@@ -4,7 +4,7 @@
 namespace Jelmergu\DatabaseConnectors;
 
 
-class PostgreSQL
+class PostgreSQL implements IDatabaseDSNConstructor
 {
     /** @inheritdoc */
     public function getDSN() : string

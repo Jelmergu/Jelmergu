@@ -387,7 +387,7 @@ class Database
         // Check if the PDO instance has been created
         if (is_a(self::$db, "PDO") === false) {
             if (!self::checkRequiredConstants(["DB_USERNAME", "DB_PASSWORD"])) {
-                return;
+                return null;
             }
 
             self::$db = new PDO(
@@ -446,7 +446,8 @@ class Database
     private static function prepareSettingsString() : string
     {
         $type  = \defined("DB_TYPE") ? DB_TYPE : "MySQL";
-        $class = 'DatabaseConnectors\\'.$type;
+        /** @var \Jelmergu\DatabaseConnectors\IDatabaseDSNConstructor $class */
+        $class = '\Jelmergu\DatabaseConnectors\\'.$type;
 
         return (new $class())->getDSN();
     }
