@@ -79,11 +79,13 @@ class Database
     }
 
     /**
-     * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
+     * This method prepares the parameters for a prepared statement, executes the statement and handles some errors.
+     * The method is intended to be used for statements that don't expect a result(DELETE, INSERT, UPDATE)
      *
      * @since   1.0.6
      * @version 2.0
      * @throws ConstantsNotSetException
+     * @throws \ReflectionException TODO where is this thrown
      *
      * @param PDOStatement|string $statement       The statement to execute
      * @param array               $parameters      A list of key => value pairs, where some match the name of the parameters in
@@ -220,7 +222,7 @@ class Database
      *
      * @return Database
      */
-    public static function getRows(&$rows = 0, string $query, array $parameters = []) : self
+    public static function getRows(&$rows, string $query, array $parameters = []) : self
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -252,7 +254,7 @@ class Database
      *
      * @return Database
      */
-    public static function queryData(string $query, array $parameters = []) : self
+    public static function queryData(string $query, array $parameters = []) : Database
     {
         try {
             self::$fetchMethod = PDO::FETCH_ASSOC;
@@ -267,7 +269,7 @@ class Database
             self::handleException($e, $query, $parameters);
         }
 
-        return new self();
+        return new Database();
     }
 
     /**
@@ -449,7 +451,7 @@ class Database
      *
      * @since   1.0.4
      * @version 2.0
-     *
+     * @throws \ReflectionException TODO where is it thrown
      *
      * @param PDOStatement $statement  The statement with a possible error
      * @param array        $parameters The parameters used in the query
@@ -529,4 +531,6 @@ class Database
             }
         }
     }
+
+
 }

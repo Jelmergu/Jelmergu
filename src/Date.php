@@ -23,7 +23,7 @@ namespace Jelmergu {
      * The class Date contains additional options for date
      *
      * @package Jelmergu/Jelmergu
-     */
+ */
     class Date extends DateTime
     {
         /**
@@ -37,7 +37,8 @@ namespace Jelmergu {
         public function __construct($time = 'now', DateTimeZone $timezone = null)
         {
             if ($time === 'now') {
-                $time = date('Y-m-d H:i:s').'.'.explode('.', microtime(true))[1];
+                $microTime = explode('.', microtime(true));
+                $time = date('Y-m-d H:i:s').'.'.$microTime[1] ?? 0;
             } elseif (is_numeric($time)) {
                 $mTime = \is_float($time) ? explode('.', $time)[1] : 0;
                 $time  = date('Y-m-d H:i:s', $time).'.'.$mTime;
