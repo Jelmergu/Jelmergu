@@ -116,7 +116,7 @@ class Log
      */
     private static function prepareMessage(string $message)
     {
-        return "[" . (new Date())->format("Y-m-d H:i:s:u") . "] " . $message . PHP_EOL;
+        return "[" . (new Date())->format("Y-m-d H:i:s.u") . "] " . $message . PHP_EOL;
     }
 
 }

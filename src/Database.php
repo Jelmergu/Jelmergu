@@ -85,7 +85,6 @@ class Database
      * @since   1.0.6
      * @version 2.0
      * @throws ConstantsNotSetException
-     * @throws \ReflectionException TODO where is this thrown
      *
      * @param PDOStatement|string $statement       The statement to execute
      * @param array               $parameters      A list of key => value pairs, where some match the name of the parameters in
@@ -179,7 +178,6 @@ class Database
      *
      * @since   1.0.6
      * @version 2.0
-     * @throws PDOException
      *
      * @param string $query      The query to extract the parameters from
      * @param array  $parameters A list of parameters that might or might not be needed by the query
@@ -356,7 +354,6 @@ class Database
      * Get the result of the last query
      *
      * @return mixed|void
-     * @throws \ReflectionException TODO find out where this gets thrown
      * @throws PDOException Throws a PDOException when there is no result in the query
      */
     public static function getResult()
@@ -383,7 +380,7 @@ class Database
     {
         // Check if the PDO instance has been created
         if (is_a(self::$db, "PDO") === false) {
-            if (!self::checkRequiredConstants(["DB_USERNAME", "DB_PASSWOR"])) {
+            if (!self::checkRequiredConstants(["DB_USERNAME", "DB_PASSWORD"])) {
                 throw new ConstantsNotSetException();
             }
 
@@ -451,7 +448,6 @@ class Database
      *
      * @since   1.0.4
      * @version 2.0
-     * @throws \ReflectionException TODO where is it thrown
      *
      * @param PDOStatement $statement  The statement with a possible error
      * @param array        $parameters The parameters used in the query
@@ -496,7 +492,6 @@ class Database
      * @param array         $parameters The parameters of the query
      *
      * @return void
-     * @throws
      */
     private static function handleException(\PDOException $e, $query, array $parameters)
     {
@@ -506,11 +501,7 @@ class Database
          *  instead of a Exception\PDOException
          */
         if (get_parent_class($e) === 'RuntimeException') {
-            try {
-                $e = new Exceptions\PDOException($e->getMessage(), $e->getCode());
-            } catch (ReflectionException $e) {
-
-            }
+            $e = new Exceptions\PDOException($e->getMessage(), $e->getCode());
         }
 
         self::$noTransactionErrors = false;
@@ -524,11 +515,7 @@ class Database
         }
         // Throw the exception if allowed
         if (self::$DatabaseOptions['debug'] >= 1) {
-            try {
-                throw new Exceptions\PDOException($e->getMessage(), $e->getCode());
-            } catch (ReflectionException $e) {
-
-            }
+            throw new Exceptions\PDOException($e->getMessage(), $e->getCode());
         }
     }
 
