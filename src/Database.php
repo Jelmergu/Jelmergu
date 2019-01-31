@@ -11,7 +11,10 @@
 
 namespace Jelmergu;
 
-use Jelmergu\Exceptions\PDOException;
+use Jelmergu\Exceptions\{
+    PDOException,
+    ConstantNotSetException
+};
 use \PDO as PDO;
 use \PDOStatement as PDOStatement;
 
@@ -84,13 +87,13 @@ class Database
      *
      * @since   1.0.6
      * @version 2.0
-     * @throws ConstantsNotSetException
      *
      * @param PDOStatement|string $statement       The statement to execute
      * @param array               $parameters      A list of key => value pairs, where some match the name of the parameters in
      *                                             the prepared statement. The keys don't need to be prefixed with a :
      * @param bool                $statementReturn Whether or not the statement should be returned for object chaining
      *
+     * @throws ConstantNotSetException
      * @return void|PDOStatement
      */
     public static function execute($statement, array $parameters = [], bool $statementReturn = false)
@@ -110,25 +113,6 @@ class Database
             self::handleException(new PDOException("\$Statement parameter given to \Jelmergu\Database was of incorrect type"), $statement, $parameters);
 
             return null;
-        }
-    }
-
-    /**
-     * This method executes multiple queries straight after each other
-     *
-     * @since   1.0.6
-     * @version 2.0
-     * @throws ConstantsNotSetException
-     *
-     * @param array $statements An array of statements
-     * @param array $parameters An array of parameters. Can be more than needed for all queries
-     *
-     * @return void
-     */
-    public static function multiExecute(array &$statements, array $parameters = [])
-    {
-        foreach ($statements as &$statement) {
-            $statement = self::execute($statement, $parameters, true);
         }
     }
 
@@ -157,11 +141,30 @@ class Database
     }
 
     /**
+     * This method executes multiple queries straight after each other
+     *
+     * @since   1.0.6
+     * @version 2.0
+     * @throws ConstantNotSetException
+     *
+     * @param array $statements An array of statements
+     * @param array $parameters An array of parameters. Can be more than needed for all queries
+     *
+     * @return void
+     */
+    public static function multiExecute(array &$statements, array $parameters = [])
+    {
+        foreach ($statements as &$statement) {
+            $statement = self::execute($statement, $parameters, true);
+        }
+    }
+
+    /**
      * Prepare a query
      *
      * @since   1.0.4
      * @version 2.0
-     * @throws ConstantsNotSetException
+     * @throws ConstantNotSetException
      *
      * @param string $query The query to prepare
      *
@@ -174,7 +177,7 @@ class Database
     }
 
     /**
-     * Parameterize every input parameter that is used by the query
+     * Parametrize every input parameter that is used by the query
      *
      * @since   1.0.6
      * @version 2.0
@@ -218,6 +221,7 @@ class Database
      * @param string $query      The query to execute
      * @param array  $parameters The parameters for the query
      *
+     * @throws ConstantNotSetException
      * @return Database
      */
     public static function getRows(&$rows, string $query, array $parameters = []) : self
@@ -250,6 +254,7 @@ class Database
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
      *
+     * @throws ConstantNotSetException
      * @return Database
      */
     public static function queryData(string $query, array $parameters = []) : Database
@@ -279,6 +284,7 @@ class Database
      * @param  string $query      The query to execute
      * @param array   $parameters The optional parameters for the prepared query
      *
+     * @throws ConstantNotSetException
      * @return Database
      */
     public static function queryRow($query, array $parameters = []) : self
@@ -305,7 +311,7 @@ class Database
      * @since   1.0.6
      * @version 2.0
      *
-     * @throws ConstantsNotSetException
+     * @throws ConstantNotSetException
      * @return bool
      */
     public static function getTransaction() : bool
@@ -319,7 +325,7 @@ class Database
      * @since   2.0.0
      * @version 1.0
      *
-     * @throws ConstantsNotSetException
+     * @throws ConstantNotSetException
      * @return bool True when a transaction is active and successfull up to the calling point, false when the transaction isn't set or has errored at some point
      */
     public static function transactionSucceeds() : bool
@@ -333,7 +339,7 @@ class Database
      * @since   1.0.6
      * @version 2.0
      *
-     * @throws ConstantsNotSetException
+     * @throws ConstantNotSetException
      * @return void
      */
     public static function transaction()
@@ -372,7 +378,7 @@ class Database
      *
      * @since   1.0.4
      * @version 2.0
-     * @throws  ConstantsNotSetException
+     * @throws  ConstantNotSetException
      *
      * @return PDO
      */
@@ -381,7 +387,7 @@ class Database
         // Check if the PDO instance has been created
         if (is_a(self::$db, "PDO") === false) {
             if (!self::checkRequiredConstants(["DB_USERNAME", "DB_PASSWORD"])) {
-                throw new ConstantsNotSetException();
+                return;
             }
 
             self::$db = new PDO(
@@ -403,6 +409,8 @@ class Database
      *
      * @param array $requiredConstants
      *
+     * @throws ConstantNotSetException
+     *
      * @return bool
      */
     private static function checkRequiredConstants(array $requiredConstants) : bool
@@ -419,7 +427,7 @@ class Database
             foreach ($missingConstant as $constant) {
                 $missing = empty($missing) === false ? "{$constant}" : "{$missing}, {$constant}";
             }
-            self::handleException(new \PDOException("Missing constants: {$missing}"), "");
+            throw new ConstantNotSetException($missing);
 
             return false;
         }
