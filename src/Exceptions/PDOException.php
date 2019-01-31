@@ -29,23 +29,26 @@ class PDOException extends \PDOException
      * @param string         $message
      * @param string|int     $code
      * @param Throwable|NULL $previous
-     *
-     * @throws \ReflectionException
      */
     public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
         parent::__construct($message);
         $this->code = $code;
-        $DatabaseReflection = new \ReflectionClass("Jelmergu\Database");
-        $backtrace = $this->getTrace();
+        try {
+            $DatabaseReflection = new \ReflectionClass("Jelmergu\Database");
+            $backtrace          = $this->getTrace();
 
-        // Go through the backtrace until a function is found that is not a method of Jelmergu\Database
-        foreach ($backtrace as $key => $caller) {
-            if ($DatabaseReflection->hasMethod($caller['function']) === false) {
-                $this->file = $backtrace[$key - 1]['file'];
-                $this->line = $backtrace[$key - 1]['line'];
-                break;
+            // Go through the backtrace until a function is found that is not a method of Jelmergu\Database
+            foreach ($backtrace as $key => $caller) {
+                if ($DatabaseReflection->hasMethod($caller['function']) === false) {
+                    $this->file = $backtrace[$key - 1]['file'];
+                    $this->line = $backtrace[$key - 1]['line'];
+                    break;
+                }
             }
+        }
+        catch (\ReflectionException $e) {
+            $e->getMessage();
         }
     }
 }
