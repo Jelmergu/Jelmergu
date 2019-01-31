@@ -58,6 +58,26 @@ class Database
     {
     }
 
+    public static function getSupportedTypes() : array
+    {
+
+        $supported = [
+            "MySQL",
+            "PostgreSQL",
+        ];
+
+        $drivers   = PDO::getAvailableDrivers();
+        $available = [];
+
+        foreach ($supported as $value) {
+            if (in_array(strtolower($value), $drivers)) {
+                $available[] = $value;
+            }
+        }
+
+        return [];
+    }
+
     /**
      * This method prepares the parameters for a prepared statement, executes the statement and handles some errors
      *
@@ -296,7 +316,7 @@ class Database
     /**
      * Checks whether or not a transaction is without errors up to the point of calling.
      *
-     * @since 2.0.0
+     * @since   2.0.0
      * @version 1.0
      *
      * @throws ConstantsNotSetException
@@ -331,6 +351,24 @@ class Database
     }
 
     /**
+     * Get the result of the last query
+     *
+     * @return mixed|void
+     * @throws \ReflectionException TODO find out where this gets thrown
+     * @throws PDOException Throws a PDOException when there is no result in the query
+     */
+    public static function getResult()
+    {
+        if (self::$result === null) {
+            throw new PDOException('No result from query');
+
+            return;
+        }
+
+        return self::$result;
+    }
+
+    /**
      * Return a pdo instance
      *
      * @since   1.0.4
@@ -343,7 +381,7 @@ class Database
     {
         // Check if the PDO instance has been created
         if (is_a(self::$db, "PDO") === false) {
-            if (!self::checkRequiredConstants()) {
+            if (!self::checkRequiredConstants(["DB_USERNAME", "DB_PASSWOR"])) {
                 throw new ConstantsNotSetException();
             }
 
@@ -361,15 +399,16 @@ class Database
     /**
      * Check if the required constants are set
      *
-     * @since 2.0.0
+     * @since   2.0.0
      * @version 1.0
+     *
+     * @param array $requiredConstants
      *
      * @return bool
      */
-    private static function checkRequiredConstants() : bool
+    private static function checkRequiredConstants(array $requiredConstants) : bool
     {
-        $missingConstant   = [];
-        $requiredConstants = ["DB_HOST", "DB_NAME", "DB_USERNAME", "DB_PASSWORD"];
+        $missingConstant = [];
 
         foreach ($requiredConstants as $constant) {
             if (defined($constant) === false) {
@@ -392,25 +431,17 @@ class Database
     /**
      * Prepare the settings string
      *
-     * @since 2.0.0
+     * @since   2.0.0
      * @version 1.0
      *
      * @return string
      */
     private static function prepareSettingsString() : string
     {
-        $type = \defined("DB_TYPE") ? DB_TYPE : "mysql";
+        $type  = \defined("DB_TYPE") ? DB_TYPE : "MySQL";
+        $class = 'DatabaseConnectors\\'.$type;
 
-        $extraFields = '';
-        $options     = ['charset', 'port'];
-
-        foreach ($options as $option) {
-            if (\defined('DB_'.strtoupper($option)) === true) {
-                $extraFields .= ';'.$option.'='.\constant('DB_'.strtoupper($option));
-            }
-        }
-
-        return $type.':host='.DB_HOST.';dbname='.DB_NAME.$extraFields;
+        return (new $class())->getDSN();
     }
 
     /**
@@ -497,20 +528,5 @@ class Database
 
             }
         }
-    }
-
-    /**
-     * Get the result of the last query
-     *
-     * @return mixed|void
-     * @throws \ReflectionException TODO find out where this gets thrown
-     * @throws PDOException Throws a PDOException when there is no result in the query
-     */
-    public static function getResult() {
-        if (self::$result === null) {
-            throw new PDOException('No result from query');
-            return;
-        }
-        return self::$result;
     }
 }

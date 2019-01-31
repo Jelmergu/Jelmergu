@@ -5,6 +5,7 @@
 # Don't ignore some folders
 #
 !src
+!src/**
 !tests
 
 #
