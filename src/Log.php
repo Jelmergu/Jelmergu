@@ -16,7 +16,7 @@ class Log
     /**
      * @var string Relative or absolute path to the folder where the logs are located
      */
-    public static $logLocation = "/";
+    public static $logLocation = __DIR__;
 
     /**
      * Set the log location that gets used within this class
@@ -29,6 +29,9 @@ class Log
     {
         if (!is_dir($path)) {
             throw new \Jelmergu\Exceptions\FileNotFound("Given path is not a valid directory: path given='${path}'");
+        }
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+            $path .= DIRECTORY_SEPARATOR;
         }
 
         self::$logLocation = $path;
@@ -52,13 +55,11 @@ class Log
         $file = fopen(self::$logLocation . $logName.".log", "a");
         fwrite($file, self::prepareMessage($message));
 
-        if (isset($extra[0][0]) === true){
-            foreach ($extra[0] as $message) {
-
+        if (isset($extra[0]) === true){
+            foreach ($extra as $message) {
                 if(Validator::objectOrArray($message) === true) {
                     $message = json_encode($message);
                 }
-
                 fwrite($file, self::prepareMessage($message));
             }
         }
@@ -68,38 +69,19 @@ class Log
 
 
     /**
-     * Write a message to the database log. Gets used a lot by \Jelmergu\Database
+     * Allows for calls of Log::databaseLog
      *
-     * @param       $message @see writeLog
-     * @param mixed ...$extra @see writeLog
-     *
-     * @return void
-     */
-    public static function databaseLog($message, ...$extra)
-    {
-        if (isset($extra[0]) === true){
-            self::writeLog("database", $message, $extra);
-        }
-        else {
-            self::writeLog("database", $message);
-        }
-    }
-
-    /**
-     * Write a message to the debug log.
-     *
-     * @param       $message @see writeLog
-     * @param mixed ...$extra @see writeLog
+     * @param $name
+     * @param $arguments
      *
      * @return void
      */
-    public static function debugLog($message, ...$extra)
+    public static function __callStatic($name, $arguments)
     {
-        if (isset($extra[0]) === true){
-            self::writeLog("debug", $message, $extra);
-        }
-        else {
-            self::writeLog("debug", $message);
+        if (substr($name, -3, 3) == "Log") {
+            $log = preg_replace("`Log$`", "", $name);
+            array_unshift($arguments, $log);
+            call_user_func_array([self::class, "writeLog"], $arguments);
         }
     }
 
