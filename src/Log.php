@@ -27,15 +27,11 @@ class Log
      */
     public static function setLogLocation(string $path)
     {
-        $aPWD = preg_split("`/|\\\`", $path);
-        $newPath = '';
-        foreach ($aPWD as $sPWD) {
-            if ($newPath === '' || \strlen($sPWD) > 0 ) {
-                $newPath .= $sPWD . DIRECTORY_SEPARATOR;
-            }
+        if (!is_dir($path)) {
+            throw new \Jelmergu\Exceptions\FileNotFound("Given path is not a valid directory: path given='${path}'");
         }
 
-        self::$logLocation = $newPath;
+        self::$logLocation = $path;
     }
 
     /**

@@ -61,6 +61,11 @@ class Database
     {
     }
 
+    /**
+     * Get the types that are supported using this class and by PDO
+     *
+     * @return array an array of classnames that can correspond to the supported database drivers
+     */
     public static function getSupportedTypes() : array
     {
 
@@ -78,7 +83,7 @@ class Database
             }
         }
 
-        return [];
+        return $available;
     }
 
     /**
@@ -95,6 +100,7 @@ class Database
      *
      * @throws ConstantNotSetException
      * @return void|PDOStatement
+     *
      */
     public static function execute($statement, array $parameters = [], bool $statementReturn = false)
     {
@@ -151,6 +157,7 @@ class Database
      * @param array $parameters An array of parameters. Can be more than needed for all queries
      *
      * @return void
+     *
      */
     public static function multiExecute(array &$statements, array $parameters = [])
     {
@@ -316,7 +323,13 @@ class Database
      */
     public static function getTransaction() : bool
     {
-        return self::getPDO()->inTransaction();
+        try {
+            return self::getPDO()->inTransaction();
+        } catch (ConstantNotSetException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -371,6 +384,23 @@ class Database
         }
 
         return self::$result;
+    }
+
+    /**
+     * Prepare the settings string
+     *
+     * @since   2.0.0
+     * @version 1.0
+     *
+     * @return string
+     */
+    public static function prepareSettingsString() : string
+    {
+        $type = \defined("DB_TYPE") ? DB_TYPE : "MySQL";
+        /** @var \Jelmergu\DatabaseConnectors\IDatabaseDSNConstructor $class */
+        $class = '\Jelmergu\DatabaseConnectors\\'.$type;
+
+        return (new $class())->getDSN();
     }
 
     /**
@@ -433,23 +463,6 @@ class Database
         }
 
         return true;
-    }
-
-    /**
-     * Prepare the settings string
-     *
-     * @since   2.0.0
-     * @version 1.0
-     *
-     * @return string
-     */
-    private static function prepareSettingsString() : string
-    {
-        $type  = \defined("DB_TYPE") ? DB_TYPE : "MySQL";
-        /** @var \Jelmergu\DatabaseConnectors\IDatabaseDSNConstructor $class */
-        $class = '\Jelmergu\DatabaseConnectors\\'.$type;
-
-        return (new $class())->getDSN();
     }
 
     /**
