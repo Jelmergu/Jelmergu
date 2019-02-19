@@ -8,23 +8,26 @@ class DateTest extends TestCase
     /**
      * @dataProvider constructor_provider
      */
-    public function test_date_constructor($argument, $result) {
+    public function test_date_constructor($argument, $result)
+    {
         $date = new Date($argument);
 
-        $this->assertEquals($result, $date->format(DATE_MYSQL_TIMESTAMP. '.u'));
+        $this->assertEquals($result, $date->format(DATE_MYSQL_TIMESTAMP.'.u'));
     }
 
-    public function constructor_provider() : array {
+    public function constructor_provider() : array
+    {
         return [
             ['2017-02-09', '2017-02-09 00:00:00.000000'],
             ['2017-02-09 00:00:00.1', '2017-02-09 00:00:00.100000'],
         ];
     }
 
-    public function test_constructor_with_numeric_time() {
+    public function test_constructor_with_numeric_time()
+    {
         $date = new Date(1486598400);
 
-        $this->assertEquals('2017-02-09 00:00:00.000000', $date->format(DATE_MYSQL_TIMESTAMP. '.u'));
+        $this->assertEquals('2017-02-09 00:00:00.000000', $date->format(DATE_MYSQL_TIMESTAMP.'.u'));
     }
 
     public function test_second_month_returns_february()
@@ -118,4 +121,66 @@ class DateTest extends TestCase
         $this->assertEquals('H:i:s', DATE_MYSQL_TIME);
         $this->assertEquals('Y-m-d H:i:s', DATE_MYSQL_TIMESTAMP);
     }
+
+    /**
+     * @dataProvider addTimeProvider
+     */
+    public function test_add_time($start, $change, $result)
+    {
+        $date = new DateTestCover($start);
+        $date->addTimeCover($change[0], $change[1]);
+        $this->assertEquals($result, $date->format(DATE_MYSQL_TIMESTAMP));
+    }
+
+    public function addTimeProvider()
+    {
+        return [
+            [
+                '2017-01-01 00:00:00',
+                [10, 'I'],
+                '2017-01-01 00:10:00',
+            ],
+            [
+                '2017-01-01 00:00:00',
+                [10, 'S'],
+                '2017-01-01 00:00:10',
+            ],
+            [
+                '2017-01-01 00:00:00',
+                [10, 'H'],
+                '2017-01-01 10:00:00',
+            ],
+            [
+                '2017-01-01 00:00:00',
+                [10, 'Y'],
+                '2027-01-01 00:00:00',
+            ],
+            [
+                '2017-01-01 00:00:00',
+                [10, 'M'],
+                '2017-11-01 00:00:00',
+            ],
+            [
+                '2017-01-01 00:00:00',
+                [10, 'D'],
+                '2017-01-11 00:00:00',
+            ],
+            [
+                '2017-01-01 00:00:00',
+                [10, 'abcdefghijklmnopqrstuvwxyz'],
+                '2017-01-01 00:00:00',
+            ],
+
+        ];
+    }
+
+}
+
+class DateTestCover extends Date
+{
+    public function addTimeCover(int $interval, string $unit)
+    {
+        $this->addTime($interval, $unit);
+    }
+
 }

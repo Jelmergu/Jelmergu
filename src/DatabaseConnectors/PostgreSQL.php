@@ -2,6 +2,7 @@
 
 
 namespace Jelmergu\DatabaseConnectors;
+use Jelmergu\Exceptions\ConstantNotSetException;
 
 
 class PostgreSQL implements IDatabaseDSNConstructor

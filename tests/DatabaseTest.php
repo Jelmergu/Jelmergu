@@ -91,18 +91,6 @@ class DatabaseTest extends TestCase
         DatabaseCover::transaction(); // end of transaction ninth and tenth call to inTransaction
     }
 
-    public function test_prepareSettingsString() {
-        define("DB_HOST", "test");
-        define("DB_NAME", "test");
-        define("DB_TYPE", "MySQL");
-
-        $this->assertEquals("mysql:host=test;dbname=test", DatabaseCover::prepareSettingsString());
-
-        define("DB_PORT", 10);
-        $this->assertEquals("mysql:host=test;dbname=test;port=10", DatabaseCover::prepareSettingsString());
-
-    }
-
     // public function test_execute() {
     //     $statementMock = $this->getMockBuilder("PDOStatement")->setMethods(['execute'])->disableOriginalConstructor()->getMock();
     //     $statementMock->expects($this->exactly(2))->method('execute')->willReturn(true);
