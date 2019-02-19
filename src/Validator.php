@@ -139,24 +139,24 @@ class Validator
      * @version 1.0.1
      * @since   1.0
      *
-     * @param array $fields
-     * @param array $indices
+     * @param array $haystack
+     * @param array $needles
      *
      * @return bool
      */
-    public static function areMixed(array $fields, array $indices) : bool
+    public static function areMixed(array $haystack, array $needles) : bool
     {
-        foreach ($indices as $key => $value) {
-            if (isset($fields[$key]) === false) {
+        foreach ($needles as $key => $value) {
+            if (isset($haystack[$key]) === false) {
                 return false;
-            } elseif (isset($fields[$value]) === false) {
+            } elseif (isset($haystack[$value]) === false) {
                 /*
                  * Check for $fields[$value] is to make it possible to do something like
                  *   Validator::areMixed($fields, [0, 1 => Validator::NOT_EMPTY]);
                  */
-                if ($value != self::EMPTY && $fields[$key] == "") {
+                if ($value != self::EMPTY && $haystack[$key] == "") {
                     return false;
-                } elseif (self::is($fields[$key], $value) === false) {
+                } elseif (self::is($haystack[$key], $value) === false) {
                     return false;
                 }
             }
@@ -186,7 +186,7 @@ class Validator
             } else {
                 $value = true;
                 if ($constant[0] == "!") {
-                    $value = false;
+                    $value    = false;
                     $constant = str_split($constant);
                     unset($constant[0]);
                     $constant = implode($constant);
@@ -235,9 +235,9 @@ class Validator
             return false; // Mailadress is not allowed to be longer than 254 characters
         }
 
-        $split = explode("@", $mailAddress);
+        $split  = explode("@", $mailAddress);
         $domain = array_pop($split); // domain
-        $local = implode("@", $split);
+        $local  = implode("@", $split);
 
         if (self::validateLocal($local) && self::validateDomain($domain)) {
             return true;
@@ -265,7 +265,7 @@ class Validator
             return false; // local part is allowed to be up to 64 characters long
         }
 
-        $quotedStringPart = '`^\"([\\\a-zA-Z0-9\.@\(\)<>\[\]:,;\"!#$\%&\-/=?^_\'\`{}| ~]{1,})\"$`';
+        $quotedStringPart   = '`^\"([\\\a-zA-Z0-9\.@\(\)<>\[\]:,;\"!#$\%&\-/=?^_\'\`{}| ~]{1,})\"$`';
         $unquotedStringPart = '`^([a-zA-Z0-9\`\'\`\-!#$%&*+/=?^_{|}~]{1,}(\.{1}|)){1,}$`';
 
         if (preg_match($quotedStringPart, $local) > 0) {
@@ -275,14 +275,14 @@ class Validator
             $localParts = $local;
             if (strpos($local, '."') > 0) {
                 $localParts = explode('."', $local);
-                $preQuote = $localParts[0];
-                $localParts = '"' . $localParts[1];
+                $preQuote   = $localParts[0];
+                $localParts = '"'.$localParts[1];
             }
 
             if (strpos($local, '".') > 0) {
                 $localParts = explode('".', $localParts);
-                $postQuote = $localParts[1];
-                $localParts = $localParts[0] . '"';
+                $postQuote  = $localParts[1];
+                $localParts = $localParts[0].'"';
             }
 
             if (preg_match($quotedStringPart, $localParts) > 0) {
@@ -329,7 +329,7 @@ class Validator
 
             $domainRegex = "`(?:\[{1})([0-9.]{7,15})(?:\]{1})|(?:\[{1}IPv6\:)([0-9a-zA-Z:]{3,24})(?:\]{1})`";
             if (preg_match($domainRegex, $domain, $matches) > 0) {
-                $match = $matches[2] ?? $matches[1]?? null;
+                $match = $matches[2] ?? $matches[1] ?? null;
                 if (is_null($match) === false) {
                     if (filter_var($match, FILTER_VALIDATE_IP) === false) {
                         return false;
@@ -338,10 +338,10 @@ class Validator
 
                 return true;
             }
-        }
-        elseif (preg_match("`^[a-z0-9]{1}[a-z0-9\-.]*[a-z]{1}$`i", $domain) == 1) {
+        } elseif (preg_match("`^[a-z0-9]{1}[a-z0-9\-.]*[a-z]{1}$`i", $domain) == 1) {
             return true;
         }
+
         return false;
     }
 
@@ -349,13 +349,17 @@ class Validator
     /**
      * Determine if the input string can be a valid IBAN number
      *
+     * @since   1.0.6
+     * @version 1.0.0
+     *
      * @param string $iban The IBAN to check
      *
      * @return bool true if the IBAN appears to be valid
      */
-    public static function validateIBAN(string $iban) : bool {
+    public static function validateIBAN(string $iban) : bool
+    {
 
-        $checksum = (int)substr($iban, 2,2);
+        $checksum = (int)substr($iban, 2, 2);
         $landCode = substr($iban, 0, 2);
         $bankCode = substr($iban, 4);
 
@@ -363,24 +367,31 @@ class Validator
         $bankCode = implode(self::getIBANValueLetter(str_split($bankCode, 1)));
 
         $fullNumber = $bankCode.$landCode.$checksum;
-        return self::validateNumber($fullNumber);
+
+        return self::validateMod97($fullNumber);
     }
 
     /**
      * Perform a mod 97 on the input number
      *
-     * @param string $number Any length of number
+     * @since   1.0.6
+     * @version 1.0.0
+     *
+     * @param string $number The number to validate, is a string to keep the number at its full length
      *
      * @return bool
      */
-    private static function validateNumber(string $number) {
+    public static function validateMod97(string $number)
+    {
         if (!is_numeric($number)) {
             return false;
         }
+
         $number = str_split($number, 9);
         if (count($number) > 1) {
-            $number[0] = (int) $number[0] % 97;
-            return self::validateNumber(implode($number));
+            $number[0] = (int)$number[0] % 97;
+
+            return self::validateMod97(implode($number));
         } else {
             return ((int)$number[0] % 97) == 1 ? true : false;
         }
@@ -389,15 +400,20 @@ class Validator
     /**
      * Convert a letter or array of letters to numbers, leaves numbers as they are
      *
+     * @since   1.0.6
+     * @version 1.0.0
+     *
      * @param $letter array|string letters to convert
      *
      * @return int|array
      */
-    private static function getIBANValueLetter($letter) {
+    private static function getIBANValueLetter($letter)
+    {
         if (is_array($letter)) {
             foreach ($letter as &$value) {
                 $value = self::getIBANValueLetter($value);
             }
+
             return $letter;
         }
 
@@ -406,6 +422,50 @@ class Validator
         }
 
         return ord(strtolower($letter)) - ord("a") + 10;
+    }
+
+    /**
+     * Checks the number against the Luhn mod10 algorithm
+     *
+     * @param string $number The number to be checked, is a string to keep the number at its full length
+     *
+     * @return bool True if the number is validates against the algorithm
+     */
+    public static function validateLuhnMod10(string $number)
+    {
+        if (!is_numeric($number)) {
+            return false;
+        }
+
+        $parity = strlen($number) % 2;
+        $total  = 0;
+        $digits = str_split($number);
+        foreach ($digits as $key => $digit) {
+            if (($key % 2) == $parity) {
+                $digit = ($digit * 2);
+            }
+            if ($digit >= 10) {
+                $digit_parts = str_split($digit);
+                $digit       = $digit_parts[0] + $digit_parts[1];
+            }
+            $total += $digit;
+        }
+
+        return $total % (10) == 0 ? true : false;
+    }
+
+    /**
+     * Checks if the creditcard number could be a valid creditcardnumber
+     *
+     * @param string $number The number to be checked, is a string to keep the number at its full length
+     *
+     * @return bool
+     */
+    public static function validateCreditcardNumber(string $number) {
+        if (strlen($number) > 19 || strlen($number) < 15 ) {
+            return false;
+        }
+        return self::validateLuhnMod10($number);
     }
 }
 

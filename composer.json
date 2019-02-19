@@ -17,10 +17,12 @@
     "require-dev": {
         "phpunit/phpunit": ">6.0",
         "phpunit/dbunit": ">3.0",
-        "php-coveralls/php-coveralls": ">2.0"
+        "php-coveralls/php-coveralls": ">2.0",
+        "mikey179/vfsstream": "^1.6"
     },
     "require": {
-        "php": "^7.0.10",
-        "ext-gd":"*"
+        "php": ">=7.0.10",
+        "ext-gd":"*",
+        "ext-pdo":"*"
     }
 }

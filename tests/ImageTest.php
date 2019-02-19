@@ -1,4 +1,4 @@
-<?php
+<?php declare (strict_types=1);
 
 use Jelmergu\Image;
 use PHPUnit\Framework\TestCase;
