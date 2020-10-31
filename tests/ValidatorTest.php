@@ -192,8 +192,8 @@ class ValidatorTest extends TestCase
         $validFieldIsTrue   = Validator::is(true, Validator::TRUE);
         $invalidFieldIsTrue = Validator::is("hello", Validator::TRUE);
 
-        // $validFieldIsNotCallable = Validator::is("hi", "!is_callable");
-        // $invalidFieldIsNotCallable = Validator::is(function () { return true;}, "!is_callable");
+        $validFieldIsNotCallable = Validator::is("hi", "!is_callable");
+        $invalidFieldIsNotCallable = Validator::is(function () { return true;}, "!is_callable");
 
         $validFieldIsCallable   = Validator::is(function () {
             return true;
@@ -209,8 +209,8 @@ class ValidatorTest extends TestCase
         $this->assertTrue($validFieldIsCallable);
         $this->assertFalse($invalidFieldIsCallable);
 
-        // $this->assertTrue($validFieldIsNotCallable);
-        // $this->assertFalse($invalidFieldIsNotCallable);
+        $this->assertTrue($validFieldIsNotCallable);
+        $this->assertFalse($invalidFieldIsNotCallable);
     }
 
     public function test_is_object_or_array()
