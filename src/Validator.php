@@ -180,6 +180,7 @@ class Validator
     public static function is($field, string $constant) : bool
     {
         $constants = (new \ReflectionClass(self::class))->getConstants();
+        $functionNameStripped = str_replace("!", "", $constant);
         if (in_array($constant, $constants)) {
             if ($constant === self::FALSE || $constant === self::TRUE) {
                 return $constant == self::FALSE ? $field === false : $field === true;
@@ -199,7 +200,10 @@ class Validator
             }
         } elseif (\function_exists($constant) === true) {
             return (bool)$constant($field);
+        } elseif (\function_exists($functionNameStripped) === true) {
+            return !((bool)$functionNameStripped($field));
         } else {
+            var_dump($constant, \function_exists($constant) === true);
             return $constant == $field;
         }
     }
