@@ -41,13 +41,13 @@ class Validator
     /**
      * This method check if the specified $indices are set and numeric in the fields array
      *
-     * @since   1.0
-     * @version 1.0
-     *
      * @param array $fields
      * @param array $indices
      *
      * @return bool
+     * @version 1.0
+     *
+     * @since   1.0
      */
     public static function areNumeric(array $fields, array $indices) : bool
     {
@@ -67,13 +67,13 @@ class Validator
     /**
      * Check if one of the supplied keys exists in the array
      *
-     * @since   1.0.4
-     * @version 1.0
-     *
      * @param array $array The array to find a key in
      * @param array $keys  The keys which are to be searched for
      *
      * @return bool
+     * @version 1.0
+     *
+     * @since   1.0.4
      */
     public static function eitherKey(array $array, array $keys) : bool
     {
@@ -89,13 +89,13 @@ class Validator
     /**
      * Checks if one of values is equal to the input string
      *
-     * @since   1.0.
-     * @version 1.0
-     *
      * @param string $field  The string to check
      * @param array  $values An array of allowed values
      *
      * @return bool
+     * @version 1.0
+     *
+     * @since   1.0.
      */
     public static function either(string $field, array $values) : bool
     {
@@ -112,13 +112,13 @@ class Validator
     /**
      * This method check if the specified $indices are set in the fields array
      *
-     * @since   1.0
-     * @version 1.0
-     *
      * @param array $fields  This is the array that contains key => value pairs that have to be validated
      * @param array $indices This is the array that contains the keys that have to be set
      *
      * @return bool Returns true if all indices are set in the fields array
+     * @version 1.0
+     *
+     * @since   1.0
      */
     public static function areSet(array $fields, array $indices) : bool
     {
@@ -136,13 +136,13 @@ class Validator
      * Note: Validator considers the strings "" and '' as not a string, for an empty string is not a string of
      * characters
      *
-     * @version 1.0.1
-     * @since   1.0
-     *
      * @param array $haystack
      * @param array $needles
      *
      * @return bool
+     * @since   1.0
+     *
+     * @version 1.0.1
      */
     public static function areMixed(array $haystack, array $needles) : bool
     {
@@ -168,14 +168,14 @@ class Validator
     /**
      * This method checks if the specified indices contain the specified type in the fields array
      *
-     * @since   1.0
-     * @version 1.0.1
-     *
      * @param mixed  $field    The value to check
      * @param string $constant One of the constants of self, an other function name with one argument or as string to
      *                         perform lose comparison on
      *
      * @return bool
+     * @version 1.0.1
+     *
+     * @since   1.0
      */
     public static function is($field, string $constant) : bool
     {
@@ -207,12 +207,12 @@ class Validator
     /**
      * Check whether or not the input variable is either an object or an array
      *
-     * @since   1.0.6
-     * @version 1.0
-     *
      * @param $var The variable to check
      *
      * @return bool
+     * @since   1.0.6
+     * @version 1.0
+     *
      */
     public static function objectOrArray($var)
     {
@@ -222,12 +222,12 @@ class Validator
     /**
      * Validate a email address
      *
-     * @since   1.0.3
-     * @version 1.0
-     *
      * @param string $mailAddress The email adres to validate
      *
      * @return bool
+     * @since   1.0.3
+     * @version 1.0
+     *
      */
     public static function validateMail(string $mailAddress) : bool
     {
@@ -251,12 +251,12 @@ class Validator
      *
      * @unsupported Comments
      *
-     * @since       1.0.3
-     * @version     1.0
-     *
      * @param string $local The local part of the email address
      *
      * @return bool
+     * @since       1.0.3
+     * @version     1.0
+     *
      */
     private static function validateLocal(string $local) : bool
     {
@@ -308,12 +308,12 @@ class Validator
      *
      * @unsupported Comments
      *
-     * @since       1.0.3
-     * @version     1.0.1
-     *
      * @param string $domain The domain of an email address
      *
      * @return bool
+     * @since       1.0.3
+     * @version     1.0.1
+     *
      */
     private static function validateDomain(string $domain) : bool
     {
@@ -349,12 +349,12 @@ class Validator
     /**
      * Determine if the input string can be a valid IBAN number
      *
-     * @since   1.0.6
-     * @version 1.0.0
-     *
      * @param string $iban The IBAN to check
      *
      * @return bool true if the IBAN appears to be valid
+     * @since   1.0.6
+     * @version 1.0.0
+     *
      */
     public static function validateIBAN(string $iban) : bool
     {
@@ -374,12 +374,12 @@ class Validator
     /**
      * Perform a mod 97 on the input number
      *
-     * @since   1.0.6
-     * @version 1.0.0
-     *
      * @param string $number The number to validate, is a string to keep the number at its full length
      *
      * @return bool
+     * @since   1.0.6
+     * @version 1.0.0
+     *
      */
     public static function validateMod97(string $number)
     {
@@ -400,12 +400,12 @@ class Validator
     /**
      * Convert a letter or array of letters to numbers, leaves numbers as they are
      *
-     * @since   1.0.6
-     * @version 1.0.0
-     *
      * @param $letter array|string letters to convert
      *
      * @return int|array
+     * @since   1.0.6
+     * @version 1.0.0
+     *
      */
     private static function getIBANValueLetter($letter)
     {
@@ -461,11 +461,27 @@ class Validator
      *
      * @return bool
      */
-    public static function validateCreditcardNumber(string $number) {
-        if (strlen($number) > 19 || strlen($number) < 15 ) {
+    public static function validateCreditcardNumber(string $number)
+    {
+        if (strlen($number) > 19 || strlen($number) < 15) {
             return false;
         }
+
         return self::validateLuhnMod10($number);
+    }
+
+    /**
+     * Check if the given array contains the given index. If it does not exist, set that index to the given value
+     *
+     * @param array      $array
+     * @param string|int $index
+     * @param string     $value
+     */
+    public static function setIfEmpty(array &$array, $index, $value = "")
+    {
+        if (isset($array[$index]) == false) {
+            $array[$index] = $value;
+        }
     }
 }
 

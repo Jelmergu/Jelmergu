@@ -275,6 +275,16 @@ class ValidatorTest extends TestCase
         $this->assertFalse($creditcardNumberToShort);
     }
 
+    public function test_setIfEmpty() {
+        $array = [2 => "originalValue"];
+
+        Validator::setIfEmpty($array, 2, "unexpectedValue");
+        Validator::setIfEmpty($array, "key1", "someKey");
+        Validator::setIfEmpty($array, 1);
+
+        $this->assertEquals(["key1" => "someKey", 1 => "", 2 => "originalValue"], $array);
+    }
+
     public function invokeMethod(&$object, $methodName, array $parameters = [])
     {
         $reflection = new \ReflectionClass(get_class($object));
