@@ -148,7 +148,7 @@ class Validator
     {
         foreach ($needles as $key => $value) {
             if (isset($haystack[$key]) === false) {
-                return false;
+                return strpos($value, "!") !== false;
             } elseif (isset($haystack[$value]) === false) {
                 /*
                  * Check for $fields[$value] is to make it possible to do something like

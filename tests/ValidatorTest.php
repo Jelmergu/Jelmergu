@@ -89,6 +89,12 @@ class ValidatorTest extends TestCase
             ],
             [4 => Validator::NUMERIC]);
 
+        $arrayKeysAreNotSetButNotNumeric = Validator::areMixed(
+            [
+                3 => 'tester',
+            ],
+            [4 => Validator::NOT_NUMERIC]);
+
         $arrayKeysAreNotEmpty = Validator::areMixed(
             [
                 3 => '',
@@ -100,6 +106,8 @@ class ValidatorTest extends TestCase
         $this->assertFalse($arrayKeysAreNotType);
 
         $this->assertFalse($arrayKeysAreNotSet);
+
+        $this->assertTrue($arrayKeysAreNotSetButNotNumeric);
 
         $this->assertFalse($arrayKeysAreNotEmpty);
     }
