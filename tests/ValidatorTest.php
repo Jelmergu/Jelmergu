@@ -89,6 +89,12 @@ class ValidatorTest extends TestCase
             ],
             [4 => Validator::NUMERIC]);
 
+        $arrayKeysAreNotSetButNotNumeric = Validator::areMixed(
+            [
+                3 => 'tester',
+            ],
+            [4 => Validator::NOT_NUMERIC]);
+
         $arrayKeysAreNotEmpty = Validator::areMixed(
             [
                 3 => '',
@@ -100,6 +106,8 @@ class ValidatorTest extends TestCase
         $this->assertFalse($arrayKeysAreNotType);
 
         $this->assertFalse($arrayKeysAreNotSet);
+
+        $this->assertTrue($arrayKeysAreNotSetButNotNumeric);
 
         $this->assertFalse($arrayKeysAreNotEmpty);
     }
@@ -184,8 +192,8 @@ class ValidatorTest extends TestCase
         $validFieldIsTrue   = Validator::is(true, Validator::TRUE);
         $invalidFieldIsTrue = Validator::is("hello", Validator::TRUE);
 
-        // $validFieldIsNotCallable = Validator::is("hi", "!is_callable");
-        // $invalidFieldIsNotCallable = Validator::is(function () { return true;}, "!is_callable");
+        $validFieldIsNotCallable = Validator::is("hi", "!is_callable");
+        $invalidFieldIsNotCallable = Validator::is(function () { return true;}, "!is_callable");
 
         $validFieldIsCallable   = Validator::is(function () {
             return true;
@@ -201,8 +209,8 @@ class ValidatorTest extends TestCase
         $this->assertTrue($validFieldIsCallable);
         $this->assertFalse($invalidFieldIsCallable);
 
-        // $this->assertTrue($validFieldIsNotCallable);
-        // $this->assertFalse($invalidFieldIsNotCallable);
+        $this->assertTrue($validFieldIsNotCallable);
+        $this->assertFalse($invalidFieldIsNotCallable);
     }
 
     public function test_is_object_or_array()
@@ -265,6 +273,16 @@ class ValidatorTest extends TestCase
         $this->assertFalse($invalidCreditcardNumber);
         $this->assertFalse($creditcardNumberToLong);
         $this->assertFalse($creditcardNumberToShort);
+    }
+
+    public function test_setIfEmpty() {
+        $array = [2 => "originalValue"];
+
+        Validator::setIfEmpty($array, 2, "unexpectedValue");
+        Validator::setIfEmpty($array, "key1", "someKey");
+        Validator::setIfEmpty($array, 1);
+
+        $this->assertEquals(["key1" => "someKey", 1 => "", 2 => "originalValue"], $array);
     }
 
     public function invokeMethod(&$object, $methodName, array $parameters = [])
