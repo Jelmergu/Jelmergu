@@ -83,16 +83,12 @@ class DateTest extends TestCase
      */
     public function test_multiple_methods_with_provider($start, $change, array $results)
     {
-        $year   = (new Date($start))->addYears($change)->format(DATE_MYSQL_TIMESTAMP);
-        $month  = (new Date($start))->addMonths($change)->format(DATE_MYSQL_TIMESTAMP);
-        $day    = (new Date($start))->addDays($change)->format(DATE_MYSQL_TIMESTAMP);
-        $hour   = (new Date($start))->addHours($change)->format(DATE_MYSQL_TIMESTAMP);
-        $minute = (new Date($start))->addMinutes($change)->format(DATE_MYSQL_TIMESTAMP);
-        $second = (new Date($start))->addSeconds($change)->format(DATE_MYSQL_TIMESTAMP);
-
-        foreach ($results as $key => $result) {
-            $this->assertEquals($result, $$key);
-        }
+        $this->assertEquals($results['year'], (new Date($start))->addYears($change)->format(DATE_MYSQL_TIMESTAMP));
+        $this->assertEquals($results['month'], (new Date($start))->addMonths($change)->format(DATE_MYSQL_TIMESTAMP));
+        $this->assertEquals($results['day'], (new Date($start))->addDays($change)->format(DATE_MYSQL_TIMESTAMP));
+        $this->assertEquals($results['hour'], (new Date($start))->addHours($change)->format(DATE_MYSQL_TIMESTAMP));
+        $this->assertEquals($results['minute'], (new Date($start))->addMinutes($change)->format(DATE_MYSQL_TIMESTAMP));
+        $this->assertEquals($results['second'], (new Date($start))->addSeconds($change)->format(DATE_MYSQL_TIMESTAMP));
     }
 
     public function test_date_format_constants()
