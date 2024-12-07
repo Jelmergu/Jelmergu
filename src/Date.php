@@ -41,7 +41,7 @@ namespace Jelmergu {
                 $time = date('Y-m-d H:i:s').'.'.$microTime[1] ?? 0;
             } elseif (is_numeric($time)) {
                 $mTime = \is_float($time) ? explode('.', $time)[1] : 0;
-                $time  = date('Y-m-d H:i:s', $time).'.'.$mTime;
+                $time  = date('Y-m-d H:i:s', (int) $time).'.'.$mTime;
             }
             parent::__construct($time, $timezone);
         }
